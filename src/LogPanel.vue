@@ -1,11 +1,15 @@
 <template>
   <div class='log-panel'>
-    <button class='close-button' @click='$emit("close")'>✕</button>
+    <h2 class='header'>
+      Лог ошибок
+      <button class='close-button' @click='$emit("close")'>✕</button>
+    </h2>
     <ul v-if='messages.length'>
       <li v-for='message in messages' :key='message.id' :class='"msg-" + message.type'>
         <h3 class='title'>{{ message.type === 'error' ? 'Ошибка' : 'Предупреждение' }}</h3>
         <div class='text'>{{ message.message }}</div>
-        <div class='time'>{{ new Date(message.time).toLocaleString() }}</div>
+        <div class='camera'>Камера: {{ message.camera.name }}</div>
+        <div class='time'>Время: {{ new Date(message.time).toLocaleString() }}</div>
       </li>
     </ul>
     <div v-else class='placeholder'>
@@ -21,27 +25,36 @@
   };
 </script>
 
-<style>
+<style scoped>
+  .header {
+    align-items: center;
+    box-shadow: #8888 0 1px 4px;
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    padding: 15px;
+  }
+
   .close-button {
     background: none;
     border: none;
     font-size: 16px;
-    position: absolute;
-    right: 15px;
-    top: 15px;
   }
 
   .log-panel {
     background: white;
     border-right: 1px solid #bbb;
     box-shadow: rgba(127, 127, 127, 0.5) 0 0 5px;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     left: -50px;
-    overflow-y: auto;
+    max-width: 100vw;
     padding-left: 50px;
     position: absolute;
     top: 0;
-    width: 300px;
+    width: 50vw;
+    z-index: 15;
   }
 
   .log-panel .placeholder {
@@ -53,7 +66,10 @@
   }
 
   .log-panel ul {
+    flex: 1;
     list-style-type: none;
+    margin: 0;
+    overflow-y: auto;
     padding-left: 0;
   }
 
@@ -74,6 +90,7 @@
     font-size: 12px;
     margin-bottom: 5px;
     padding: 7px;
+    white-space: pre-wrap;
     word-wrap: break-word;
   }
 

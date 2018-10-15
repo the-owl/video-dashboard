@@ -75,6 +75,7 @@ export default {
     position: absolute;
     transition: background-color .5s, transform .3s ease-out, box-shadow .3s ease-out;
     user-select: none;
+    z-index: 10;
   }
 
   .messages-button:hover {
@@ -115,12 +116,13 @@ export default {
     font-family: sans-serif;
     height: 100%;
     margin: 0;
+    overflow: hidden;
     padding: 0;
     width: 100%;
   }
 
   .slide-out-enter-active, .slide-out-leave-active {
-    transition: transform 0.5s cubic-bezier(.72,-0.32,.35,1.3)  !important;
+    transition: transform 0.35s ease-in-out !important;
   }
 
   .slide-out-enter-active, .slide-out-leave {

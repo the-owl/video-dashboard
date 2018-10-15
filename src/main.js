@@ -14,9 +14,17 @@ async function main () {
       showLogs: false
     },
     methods: {
+      setCameraError (uuid, message) {
+        for (const camera of this.cameras) {
+          if (camera.uuid === uuid) {
+            camera.error = message;
+          }
+        }
+      },
       updateCamera (uuid) {
         for (const camera of this.cameras) {
           if (camera.uuid === uuid) {
+            camera.error = false;
             camera.imageVersion++;
             return;
           }
@@ -48,10 +56,12 @@ async function main () {
       } else {
         app.messages.push({
           ...event,
+          camera: app.cameras.filter(cam => cam.uuid === event.uuid)[0],
           unread: true
         });
-        if (app.messages.length > 500) {
-          app.messages = app.messages.slice(-500);
+        app.setCameraError(event.uuid, event.message);
+        if (app.messages.length > 50) {
+          app.messages = app.messages.slice(-50);
         }
       }
     }
