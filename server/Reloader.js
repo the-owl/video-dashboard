@@ -30,10 +30,12 @@ class Reloader {
 
       try {
         await camera.reload();
+        camera.error = false;
         events.pushUpdate(camera.uuid);
         retryCounter = MAX_RETRIES_WITHOUT_DELAY;
       } catch (error) {
         events.pushError(error, camera.uuid);
+        camera.error = error.message;
         if (retryCounter) {
           retryCounter--;
         } else {

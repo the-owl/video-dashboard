@@ -9,7 +9,8 @@ const OUTPUT_FILENAME = 'output.jpg';
 const TIMEOUT = 30000; // 30 seconds
 
 class Camera {
-  constructor (uuid) {
+  constructor ({ name, uuid }) {
+    this.name = name;
     this.uuid = uuid;
     this.lastUpdated = null;
     this.updating = false;
@@ -17,7 +18,10 @@ class Camera {
 
   async getStreamUrl () {
     const response = await fetch('http://api.ipeye.ru/device/url/rtsp/' + this.uuid);
-    const { message } = await response.json();
+    const { message, status } = await response.json();
+    if (!status) {
+      throw new Error('Ошибка API IPEYE: ' + message);
+    }
     return message;
   }
 

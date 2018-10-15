@@ -12,6 +12,7 @@
   "dependencies": {
     "express": "^4.16.4",
     "fs-extra": "^7.0.0",
+    "js-yaml": "^3.12.0",
     "node-fetch": "^2.2.0",
     "vue": "^2.5.2"
   },

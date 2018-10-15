@@ -3,16 +3,22 @@ const events = require('./events');
 const Camera = require('./Camera');
 const Reloader = require('./Reloader');
 const path = require('path');
+const yaml = require('js-yaml');
+const fs = require('fs-extra');
 
 
 const app = express();
-const config = require('../server-config.js');
+const config = yaml.safeLoad(fs.readFileSync(
+  path.resolve(__dirname, '..', 'config.yaml')
+));
 
-const cameras = config.cameras.map(uuid => new Camera(uuid));
+const cameras = config.cameras.map(camera => new Camera(camera));
 
 app.get('/cameras', (req, res) => {
   res.status(200).json(cameras.map(camera => ({
+    error: camera.error,
     lastUpdated: camera.lastUpdated ? Math.floor(camera.lastUpdated.getTime() / 1000) : null,
+    name: camera.name,
     uuid: camera.uuid
   })));
 });
