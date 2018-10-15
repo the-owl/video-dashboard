@@ -5,9 +5,14 @@
       <button class='close-button' @click='$emit("close")'>✕</button>
     </h2>
     <div class='image-container'>
-      <iframe v-if='open' :src='src' marginwidth="0" marginheight="0"></iframe>
+      <iframe v-if='open' :src='src' marginwidth="0" marginheight="0" @load='loaded = true'></iframe>
       <transition name='iframe'>
-        <img v-if='!open' :src='imgSrc' />
+        <img v-if='!open || !loaded' :src='imgSrc' />
+      </transition>
+      <transition name='iframe'>
+        <div v-if='open && !loaded' class='loading-tint'>
+          Загрузка видео...
+        </div>
       </transition>
     </div>
   </div>
@@ -19,6 +24,11 @@ export default {
     src () {
       return `https://ipeye.ru/ipeye_service/api/api.php?dev=${this.camera.uuid}&tupe=rtmp&autoplay=1&logo=1`;
     }
+  },
+  data () {
+    return {
+      loaded: false
+    };
   },
   props: ['camera', 'imgSrc', 'open']
 }
@@ -68,18 +78,36 @@ export default {
     top: 0;
   }
 
+  .loading-tint {
+    align-items: center;
+    color: white;
+    display: flex;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: #000 0 0 5px;
+    z-index: 6;
+  }
+
   .image-container > img {
     max-height: 100%;
-    transition: opacity 1s ease;
     width: 100%;
     z-index: 5;
   }
 
-  .iframe-leave {
-    opacity: 1;
+  .iframe-enter-active {
+    transition: opacity 0.4s ease;
   }
 
   .iframe-leave-active {
+    transition: opacity 0.65s ease;
+  }
+
+  .iframe-enter-active {
+    opacity: 1;
+  }
+
+  .iframe-leave-active, .iframe-enter {
     opacity: 0;
   }
 </style>
