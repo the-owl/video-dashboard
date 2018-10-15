@@ -22,6 +22,7 @@ app.get('/events', (req, res) => {
 });
 
 app.use('/snapshots', express.static(path.resolve('snapshots')));
+app.use('/', express.static(path.resolve('dist')));
 
 function *circularList (array) {
   let counter = 0;
