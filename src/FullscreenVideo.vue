@@ -72,7 +72,7 @@ export default {
     max-height: 100%;
     transition: opacity 1s ease;
     width: 100%;
-    z-index: 10;
+    z-index: 5;
   }
 
   .iframe-leave {
