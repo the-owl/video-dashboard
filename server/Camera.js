@@ -1,7 +1,6 @@
 const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs-extra');
-const events = require('./events');
 const fetch = require('node-fetch');
 
 
@@ -76,7 +75,6 @@ class Camera {
 
   async _removeSnapshots (snapshots) {
     for (const file of snapshots) {
-      events.pushWarning(`Найден лишний кадр: ${file}. Удаляем его...`);
       await fs.unlink(file);
     }
   }

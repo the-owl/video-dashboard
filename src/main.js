@@ -14,6 +14,21 @@ async function main () {
       showLogs: false
     },
     methods: {
+      processMessage (message) {
+        if (message.type === 'update') {
+          this.updateCamera(message.uuid);
+        } else {
+          this.messages.push({
+            ...message,
+            camera: this.cameras.filter(cam => cam.uuid === message.uuid)[0],
+            unread: true
+          });
+          this.setCameraError(message.uuid, message.message);
+          if (this.messages.length > 50) {
+            this.messages = this.messages.slice(-50);
+          }
+        }
+      },
       setCameraError (uuid, message) {
         for (const camera of this.cameras) {
           if (camera.uuid === uuid) {
@@ -41,31 +56,14 @@ async function main () {
       ...camera,
       imageVersion: 1
     }));
+    const socket = new WebSocket(`ws://${location.host}/events`);
+    socket.onmessage = message => {
+      app.processMessage(JSON.parse(message.data));
+    };
   } catch (error) {
     alert('Не удалось инициализировать приложение. См. консоль браузера.');
     console.error(error);
   }
-
-  setInterval(async () => {
-    const response = await fetch('/events');
-    const events = await response.json();
-
-    for (const event of events) {
-      if (event.type === 'update') {
-        app.updateCamera(event.uuid);
-      } else {
-        app.messages.push({
-          ...event,
-          camera: app.cameras.filter(cam => cam.uuid === event.uuid)[0],
-          unread: true
-        });
-        app.setCameraError(event.uuid, event.message);
-        if (app.messages.length > 50) {
-          app.messages = app.messages.slice(-50);
-        }
-      }
-    }
-  }, 1000);
 }
 
 main();

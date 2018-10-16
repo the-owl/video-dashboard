@@ -11,8 +11,11 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
+      '/events': {
+        target: 'ws://localhost:8000/events',
+        ws: true
+      },
       '/cameras': 'http://localhost:8000',
-      '/events': 'http://localhost:8000',
       '/snapshots': 'http://localhost:8000'
     },
 

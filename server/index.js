@@ -1,13 +1,15 @@
 const express = require('express');
-const events = require('./events');
 const Camera = require('./Camera');
 const Reloader = require('./Reloader');
 const path = require('path');
 const yaml = require('js-yaml');
 const fs = require('fs-extra');
+const http = require('http');
+const WebsocketServer = require('./WebsocketServer');
 
 
 const app = express();
+const httpServer = http.createServer(app);
 const config = yaml.safeLoad(fs.readFileSync(
   path.resolve(__dirname, '..', 'config.yaml')
 ));
@@ -17,14 +19,10 @@ const cameras = config.cameras.map(camera => new Camera(camera));
 app.get('/cameras', (req, res) => {
   res.status(200).json(cameras.map(camera => ({
     error: camera.error,
-    lastUpdated: camera.lastUpdated ? Math.floor(camera.lastUpdated.getTime() / 1000) : null,
+    lastUpdated: camera.lastUpdated ? camera.lastUpdated.getTime() : null,
     name: camera.name,
     uuid: camera.uuid
   })));
-});
-
-app.get('/events', (req, res) => {
-  res.status(200).json(events.getUnread());
 });
 
 app.use('/snapshots', express.static(path.resolve('snapshots')));
@@ -41,8 +39,13 @@ function *circularList (array) {
 if (!config.noReload) {
   const reloader = new Reloader(circularList(cameras));
   reloader.start();
+  reloader.on('update', camera => console.log('Update:', camera.name, camera.uuid));
+  reloader.on('updateError', (error, camera) =>
+    console.error('Error: ', camera.name, camera.uuid, error)
+  );
+  const websocketServer = new WebsocketServer(httpServer, reloader);
 }
-app.listen(config.port, '0.0.0.0', error => {
+httpServer.listen(config.port, '0.0.0.0', error => {
   if (error) {
     console.error(error);
     process.exit(1);

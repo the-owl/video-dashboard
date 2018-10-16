@@ -1,11 +1,12 @@
-const events = require('./events');
+const { EventEmitter } = require('events');
 
 
 const MAX_RETRIES_WITHOUT_DELAY = 5;
 const RETRY_DELAY = 5000;
 
-class Reloader {
+class Reloader extends EventEmitter {
   constructor (cameras) {
+    super();
     this.cameras = cameras;
     this.running = false;
   }
@@ -31,19 +32,23 @@ class Reloader {
       try {
         await camera.reload();
         camera.error = false;
-        events.pushUpdate(camera.uuid);
+        this.emit('update', camera);
         retryCounter = MAX_RETRIES_WITHOUT_DELAY;
       } catch (error) {
-        events.pushError(error, camera.uuid);
         camera.error = error.message;
+        this.emit('updateError', error, camera);
         if (retryCounter) {
           retryCounter--;
         } else {
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          await sleep(RETRY_DELAY);
         }
       }
     }
   }
+}
+
+function sleep (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 module.exports = Reloader;
