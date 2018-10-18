@@ -1,5 +1,5 @@
 <template>
-  <div class='camera-grid'>
+  <div class='camera-grid' :style='{ fontSize }'>
     <div v-for='y in grid.rows' class='row' :key='y'>
       <div v-for='x in grid.columns' class='column' :key='x'>
         <img v-if='cameraExists(x, y)' :src='source(x, y)' />
@@ -7,7 +7,6 @@
           <div class='text'>
             <span class='name'>{{ camera(x, y).name }}</span>
             <span v-if='camera(x, y).error' class='error'>✗</span>
-            <span v-else class='ok'>✓</span>
           </div>
         </div>
       </div>
@@ -28,6 +27,12 @@ export default {
     FullscreenVideo
   },
   computed: {
+    fontSize () {
+      const cellWidth = this.width / this.grid.columns;
+      const cellHeight = this.height / this.grid.rows;
+      const diagonal = Math.sqrt(cellWidth * cellWidth + cellHeight * cellHeight);
+      return String(diagonal / 8) + 'px';
+    },
     grid () {
       const variants = [];
       for (let rowCount = 1; rowCount < this.cameras.length; rowCount++) {
@@ -138,7 +143,6 @@ export default {
 
   .text {
     color: white;
-    font-size: 26px;
     text-shadow: #000 0 0 5px;
   }
 
@@ -151,7 +155,6 @@ export default {
   }
 
   .error, .ok {
-    font-size: 32px;
     pointer-events: none;
     user-select: none;
   }
