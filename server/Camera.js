@@ -16,14 +16,19 @@ class Camera {
     this.lastUpdated = null;
     this.lastSuccessfulUpdate = null;
     this.updating = false;
+    this._streamUrl = null;
   }
 
   async getStreamUrl () {
+    if (this._streamUrl) {
+      return this._streamUrl;
+    }
     const response = await fetch('http://api.ipeye.ru/device/url/rtsp/' + this.uuid);
     const { message, status } = await response.json();
     if (!status) {
       throw new Error('Ошибка API IPEYE: ' + message);
     }
+    this._streamUrl = message;
     return message;
   }
 
