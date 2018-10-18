@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const fetch = require('node-fetch');
 
 
+const IMAGE_WIDTH = 320;
 const OUTPUT_FILENAME = 'output.jpg';
 const TIMEOUT = 30000; // 30 seconds
 
@@ -58,7 +59,7 @@ class Camera {
     const output = path.join(this._snapshotDir, 'output.jpg');
     return new Promise((resolve, reject) => {
       exec(
-        `ffmpeg -i ${streamUrl} -y -r 1 -t 1 ${output}`,
+        `ffmpeg -i ${streamUrl} -y -r 1 -t 1 -vf scale=${IMAGE_WIDTH}:-1 ${output}`,
         {
           timeout: TIMEOUT
         },
