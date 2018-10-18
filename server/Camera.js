@@ -13,6 +13,7 @@ class Camera {
     this.error = null;
     this.uuid = uuid;
     this.lastUpdated = null;
+    this.lastSuccessfulUpdate = null;
     this.updating = false;
   }
 
@@ -29,19 +30,21 @@ class Camera {
     if (this.updating) {
       return;
     }
+    let date;
     try {
       this.updating = true;
       await this._ensureDir();
       await this._generateSnapshot();
-      const date = new Date();
+      date = new Date();
       const snapshots = await this._findGeneratedSnapshots();
       if (!snapshots.length) {
         throw new Error('Не было сгенерировано ни одного кадра, хотя процесс VLC завершился успешно.');
       }
       await this._removeSnapshots(snapshots.slice(1));
       await this._setResultingSnapshot(snapshots[0]);
-      this.lastUpdated = date;
+      this.lastSuccessfulUpdate = date;
     } finally {
+      this.lastUpdated = date || new Date();
       this.updating = false;
     }
   }
