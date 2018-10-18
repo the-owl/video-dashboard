@@ -45,6 +45,7 @@ export default {
     align-items: center;
     box-shadow: #8888 0 1px 4px;
     display: flex;
+    font-size: 24px;
     justify-content: space-between;
     margin: 0;
     padding: 15px;
@@ -90,7 +91,9 @@ export default {
   }
 
   .image-container > img {
+    height: 100%;
     max-height: 100%;
+    object-fit: cover;
     width: 100%;
     z-index: 5;
   }

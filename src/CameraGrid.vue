@@ -224,7 +224,6 @@ export default {
   }
 
   .fullscreen-video {
-    font-size: 32px;
     position: absolute;
     transition: bottom 0.5s ease, left 0.5s ease, right 0.5s ease, top 0.5s ease, opacity 0.5s ease;
   }

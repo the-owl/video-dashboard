@@ -28,7 +28,7 @@
 <style scoped>
   .header {
     align-items: center;
-    box-shadow: #8888 0 1px 4px;
+    box-shadow: rgba(136, 136, 136, 0.533) 0 1px 4px;
     display: flex;
     justify-content: space-between;
     margin: 0;
@@ -50,6 +50,7 @@
     height: 100%;
     left: -50px;
     max-width: 100vw;
+    min-width: 300px;
     padding-left: 50px;
     position: absolute;
     top: 0;
@@ -83,8 +84,8 @@
   }
 
   .log-panel ul > li .text {
-    background-color: #cad5e683;
-    border: 1px solid #a5000080;
+    background-color: rgba(202, 213, 230, 0.514);
+    border: 1px solid rgba(165, 0, 0, 0.502);
     border-radius: 3px;
     font-family: monospace;
     font-size: 12px;
