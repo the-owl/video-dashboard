@@ -1,7 +1,8 @@
 const { EventEmitter } = require('events');
 
 
-const MAX_RETRIES_WITHOUT_DELAY = 5;
+const CONSEQUENT_RETRIES = 3;
+const MAX_RETRIES_WITHOUT_DELAY = 6;
 const RETRY_DELAY = 5000;
 
 class Reloader extends EventEmitter {
@@ -9,6 +10,7 @@ class Reloader extends EventEmitter {
     super();
     this.cameras = cameras;
     this.running = false;
+    this.retryCounter = MAX_RETRIES_WITHOUT_DELAY;
   }
 
   start () {
@@ -22,27 +24,38 @@ class Reloader extends EventEmitter {
     this.running = false;
   }
 
+  async _reloadCamera (camera) {
+    let error = null;
+    for (let i = 0; i < CONSEQUENT_RETRIES; i++) {
+      try {
+        await camera.reload();
+        camera.error = false;
+        this.emit('update', camera);
+        this.retryCounter = MAX_RETRIES_WITHOUT_DELAY;
+        return;
+      } catch (err) {
+        error = err;
+        this.emit('updateAttemptError', error, camera, i + 1);
+        if (this.retryCounter) {
+          this.retryCounter--;
+        } else {
+          await sleep(RETRY_DELAY);
+        }
+      }
+    }
+
+    // If we reached this point - it means <CONSEQUENT_RETRIES> errors
+    camera.error = error.message;
+    this.emit('updateError', error, camera);
+  }
+
   async _worker () {
-    let retryCounter = MAX_RETRIES_WITHOUT_DELAY;
     for (const camera of this.cameras) {
       if (!this.running) {
         return;
       }
 
-      try {
-        await camera.reload();
-        camera.error = false;
-        this.emit('update', camera);
-        retryCounter = MAX_RETRIES_WITHOUT_DELAY;
-      } catch (error) {
-        camera.error = error.message;
-        this.emit('updateError', error, camera);
-        if (retryCounter) {
-          retryCounter--;
-        } else {
-          await sleep(RETRY_DELAY);
-        }
-      }
+      await this._reloadCamera(camera);
     }
   }
 }

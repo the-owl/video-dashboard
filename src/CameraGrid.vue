@@ -2,8 +2,10 @@
   <div class='camera-grid' :style='{ fontSize }'>
     <div v-for='y in grid.rows' class='row' :key='y'>
       <div v-for='x in grid.columns' class='column' :key='x'>
-        <img v-if='cameraExists(x, y)' :src='source(x, y)' />
-        <div v-if='cameraExists(x, y)' class='info' @click='openFullscreen($event, x, y)'>
+        <img v-if='cameraExists(x, y)'
+             :src='source(x, y)' @load='onLoaded(x, y)' />
+        <div v-if='cameraExists(x, y)' @click='openFullscreen($event, x, y)'
+             :class='{ reloaded: isReloaded(x, y), info: true }'>
           <div class='text'>
             <span class='name'>{{ camera(x, y).name }}</span>
             <span v-if='camera(x, y).error' class='error'>✗</span>
@@ -64,6 +66,7 @@ export default {
     return {
       fullscreen: null,
       height: window.innerHeight,
+      loadedVersions: {},
       width: window.innerWidth
     };
   },
@@ -85,6 +88,18 @@ export default {
       this.$nextTick(() => {
         this.fullscreen = null;
       });
+    },
+    isReloaded (x, y) {
+      const index = this.cameraIndex(x, y);
+      const camera = this.cameras[index];
+      if (!(index in this.loadedVersions)) {
+        this.$set(this.loadedVersions, index, null);
+      }
+      return this.loadedVersions[index] === camera.imageVersion && camera.imageVersion > 1;
+    },
+    onLoaded (x, y) {
+      const index = this.cameraIndex(x, y);
+      this.loadedVersions[index] = this.cameras[index].imageVersion;
     },
     openFullscreen (event, x, y) {
       const camera = this.camera(x, y);
@@ -116,6 +131,36 @@ export default {
 </script>
 
 <style scoped>
+  @keyframes flash {
+    0% {
+      background-color: rgba(255, 255, 255, 0);
+    }
+
+    1% {
+      background-color: rgba(255, 255, 255, 1);
+    }
+
+    5% {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    10% {
+      background-color: rgba(255, 255, 255, 1);
+    }
+
+    15% {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    20% {
+      background-color: rgba(255, 255, 255, 1);
+    }
+    
+    100% {
+      background-color: rgba(255, 255, 255, 0);
+    }
+  }
+
   .camera-grid {
     display: flex;
     flex-direction: column;
@@ -138,7 +183,12 @@ export default {
 
   img {
     height: 100%;
+    position: relative;
     width: 100%;
+  }
+
+  .info.reloaded {
+    animation: flash 1s linear;
   }
 
   .text {
@@ -174,6 +224,7 @@ export default {
   }
 
   .fullscreen-video {
+    font-size: 32px;
     position: absolute;
     transition: bottom 0.5s ease, left 0.5s ease, right 0.5s ease, top 0.5s ease, opacity 0.5s ease;
   }

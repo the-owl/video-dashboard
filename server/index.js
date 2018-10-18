@@ -40,9 +40,10 @@ if (!config.noReload) {
   const reloader = new Reloader(circularList(cameras));
   reloader.start();
   reloader.on('update', camera => console.log('Update:', camera.name, camera.uuid));
-  reloader.on('updateError', (error, camera) =>
-    console.error('Error: ', camera.name, camera.uuid, error)
-  );
+  reloader.on('updateAttemptError', (error, camera, attempt) => {
+    console.error('Error: ', camera.name, camera.uuid, error);
+    console.error('(attempt: ' + attempt + ')');
+  });
   const websocketServer = new WebsocketServer(httpServer, reloader);
 }
 httpServer.listen(config.port, '0.0.0.0', error => {

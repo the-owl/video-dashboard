@@ -10,6 +10,7 @@ const TIMEOUT = 30000; // 30 seconds
 class Camera {
   constructor ({ name, uuid }) {
     this.name = name;
+    this.error = null;
     this.uuid = uuid;
     this.lastUpdated = null;
     this.updating = false;
@@ -32,13 +33,14 @@ class Camera {
       this.updating = true;
       await this._ensureDir();
       await this._generateSnapshot();
-      this.lastUpdated = new Date();
+      const date = new Date();
       const snapshots = await this._findGeneratedSnapshots();
       if (!snapshots.length) {
         throw new Error('Не было сгенерировано ни одного кадра, хотя процесс VLC завершился успешно.');
       }
       await this._removeSnapshots(snapshots.slice(1));
       await this._setResultingSnapshot(snapshots[0]);
+      this.lastUpdated = date;
     } finally {
       this.updating = false;
     }

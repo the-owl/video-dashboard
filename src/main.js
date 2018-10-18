@@ -33,6 +33,7 @@ async function main () {
         for (const camera of this.cameras) {
           if (camera.uuid === uuid) {
             camera.error = message;
+            break;
           }
         }
       },
