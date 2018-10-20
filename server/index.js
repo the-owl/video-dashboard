@@ -1,6 +1,7 @@
 const express = require('express');
 const Camera = require('./Camera');
 const Reloader = require('./Reloader');
+const ConcurrentReloader = require('./ConcurrentReloader');
 const path = require('path');
 const yaml = require('js-yaml');
 const fs = require('fs-extra');
@@ -28,16 +29,8 @@ app.get('/cameras', (req, res) => {
 app.use('/snapshots', express.static(path.resolve('snapshots')));
 app.use('/', express.static(path.resolve('dist')));
 
-function *circularList (array) {
-  let counter = 0;
-  while (true) {
-    yield array[counter];
-    counter = (counter + 1) % array.length;
-  }
-}
-
 if (!config.noReload) {
-  const reloader = new Reloader(circularList(cameras));
+  const reloader = new ConcurrentReloader(cameras, 4);
   reloader.start();
   reloader.on('update', camera => console.log('Update:', camera.name, camera.uuid));
   reloader.on('updateAttemptError', (error, camera, attempt) => {

@@ -3,25 +3,40 @@ const { EventEmitter } = require('events');
 
 const CONSEQUENT_RETRIES = 3;
 const MAX_RETRIES_WITHOUT_DELAY = 6;
-const RETRY_DELAY = 5000;
+const RETRY_DELAY = 1000;
+
+const STATE_STOPPED = 0;
+const STATE_RUNNING = 1;
+const STATE_STOPPING = 2;
 
 class Reloader extends EventEmitter {
   constructor (cameras) {
     super();
     this.cameras = cameras;
-    this.running = false;
+    this.state = STATE_STOPPED;
     this.retryCounter = MAX_RETRIES_WITHOUT_DELAY;
   }
 
   start () {
-    if (!this.running) {
-      this.running = true;
+    if (this.state === STATE_STOPPED) {
       this._worker();
+      this.state = STATE_RUNNING;
+    } else {
+      throw new Error('Cannot start a Reloader that is already running');
     }
   }
 
   stop () {
-    this.running = false;
+    this.state = STATE_STOPPING;
+    return new Promise(resolve => this.once('stop', resolve));
+  }
+
+  async *_cameraQueue () {
+    while (true) {
+      for await (const camera of this.cameras) {
+        yield camera;
+      }
+    }
   }
 
   async _reloadCamera (camera) {
@@ -50,15 +65,25 @@ class Reloader extends EventEmitter {
   }
 
   async _worker () {
-    for (const camera of this.cameras) {
-      if (!this.running) {
-        return;
+    for await (const camera of this._cameraQueue()) {
+      if (camera.updating) {
+        throw new Error('Camera already reloading');
+      }
+
+      if (this.state === STATE_STOPPING) {
+        break;
       }
 
       await this._reloadCamera(camera);
     }
+    this.state = STATE_STOPPED;
+    this.emit('stop');
   }
 }
+
+Object.assign(Reloader, {
+  STATE_STOPPED, STATE_RUNNING, STATE_STOPPING
+});
 
 function sleep (ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

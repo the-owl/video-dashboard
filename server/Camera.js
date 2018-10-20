@@ -23,7 +23,7 @@ class Camera {
     if (this._streamUrl) {
       return this._streamUrl;
     }
-    const response = await fetch('http://api.ipeye.ru/device/url/rtsp/' + this.uuid);
+    const response = await fetch('http://api.ipeye.ru/device/url/rtmp/' + this.uuid);
     const { message, status } = await response.json();
     if (!status) {
       throw new Error('Ошибка API IPEYE: ' + message);
