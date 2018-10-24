@@ -74,7 +74,9 @@ class Reloader extends EventEmitter {
         break;
       }
 
+      this.emit('updateStart', camera);
       await this._reloadCamera(camera);
+      this.emit('updateEnd', camera);
     }
     this.state = STATE_STOPPED;
     this.emit('stop');

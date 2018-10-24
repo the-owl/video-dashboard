@@ -1,6 +1,5 @@
 const express = require('express');
 const Camera = require('./Camera');
-const Reloader = require('./Reloader');
 const ConcurrentReloader = require('./ConcurrentReloader');
 const path = require('path');
 const yaml = require('js-yaml');
@@ -30,7 +29,7 @@ app.use('/snapshots', express.static(path.resolve('snapshots')));
 app.use('/', express.static(path.resolve('dist')));
 
 if (!config.noReload) {
-  const reloader = new ConcurrentReloader(cameras, 4);
+  const reloader = new ConcurrentReloader(cameras, config.parallelReloads || 1);
   reloader.start();
   reloader.on('update', camera => console.log('Update:', camera.name, camera.uuid));
   reloader.on('updateAttemptError', (error, camera, attempt) => {

@@ -14,6 +14,8 @@ class WebsocketServer {
     this.server.on('connection', socket => {
       subscribeUntilClosed(this.reloader, 'updateError', this._sendError(socket), socket);
       subscribeUntilClosed(this.reloader, 'update', this._sendUpdate(socket), socket);
+      subscribeUntilClosed(this.reloader, 'updateStart', this._sendLoading(socket, true), socket);
+      subscribeUntilClosed(this.reloader, 'updateEnd', this._sendLoading(socket, false), socket);
     });
   }
 
@@ -22,6 +24,16 @@ class WebsocketServer {
       sendJson(socket, {
         message: error.message,
         type: 'error',
+        uuid: camera.uuid
+      });
+    };
+  }
+
+  _sendLoading (socket, loading) {
+    return function (camera) {
+      sendJson(socket, {
+        type: 'loading',
+        value: loading,
         uuid: camera.uuid
       });
     };

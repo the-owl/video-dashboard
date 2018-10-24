@@ -10,6 +10,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "epic-spinners": "^1.0.3",
     "express": "^4.16.4",
     "fs-extra": "^7.0.0",
     "js-yaml": "^3.12.0",

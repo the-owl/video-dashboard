@@ -20,6 +20,8 @@ class ConcurrentReloader extends EventEmitter {
       this._forwardEvent(reloader, 'update');
       this._forwardEvent(reloader, 'updateError');
       this._forwardEvent(reloader, 'updateAttemptError');
+      this._forwardEvent(reloader, 'updateStart');
+      this._forwardEvent(reloader, 'updateEnd');
       this.reloaders.push(reloader);
     }
   }

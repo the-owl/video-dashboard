@@ -10,6 +10,14 @@
             <span class='name'>{{ camera(x, y).name }}</span>
             <span v-if='camera(x, y).error' class='error'>✗</span>
           </div>
+          <div v-if='camera(x, y).loading' class='loading'>
+            <hollow-dots-spinner
+              :animation-duration="2000"
+              :dot-size="dotSize"
+              :dots-num="5"
+              color="#ffffff"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -23,17 +31,23 @@
 
 <script>
 import FullscreenVideo from './FullscreenVideo';
+import { HollowDotsSpinner } from 'epic-spinners'
 
 export default {
   components: {
-    FullscreenVideo
+    FullscreenVideo, HollowDotsSpinner
   },
   computed: {
-    fontSize () {
+    cellSize () {
       const cellWidth = this.width / this.grid.columns;
       const cellHeight = this.height / this.grid.rows;
-      const diagonal = Math.sqrt(cellWidth * cellWidth + cellHeight * cellHeight);
-      return String(diagonal / 8) + 'px';
+      return Math.sqrt(cellWidth * cellWidth + cellHeight * cellHeight);
+    },
+    dotSize () {
+      return this.cellSize / 15;
+    },
+    fontSize () {
+      return String(this.cellSize / 8) + 'px';
     },
     grid () {
       const variants = [];
@@ -215,6 +229,15 @@ export default {
     position: absolute;
     right: 0;
     top: 0;
+  }
+
+  .info .loading {
+    align-items: center;
+    background: rgba(0, 153, 255, 0.336);
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
   }
 
   .info .text {
