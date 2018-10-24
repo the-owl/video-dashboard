@@ -21,7 +21,8 @@ app.get('/cameras', (req, res) => {
     error: camera.error,
     lastUpdated: camera.lastUpdated ? camera.lastUpdated.getTime() : null,
     name: camera.name,
-    uuid: camera.uuid
+    uuid: camera.uuid,
+    loading: camera.updating
   })));
 });
 

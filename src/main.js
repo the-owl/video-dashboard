@@ -1,5 +1,6 @@
-import Vue from 'vue'
-import App from './App'
+import Vue from 'vue';
+import App from './App';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 Vue.config.productionTip = false;
 
@@ -10,6 +11,7 @@ async function main () {
     components: { App },
     data: {
       cameras: null,
+      connectionLost: false,
       messages: [],
       showLogs: false
     },
@@ -23,23 +25,29 @@ async function main () {
         } else if (message.type === 'loading') {
           this.modifyCamera(message.uuid, camera => camera.loading = message.value);
         } else {
+          const camera = this.modifyCamera(
+            message.uuid, camera => camera.error = message.message
+          );
+          if (!camera) {
+            return;
+          }
           this.messages.push({
-            ...message,
-            camera: this.cameras.filter(cam => cam.uuid === message.uuid)[0],
+            ...message, camera,
             unread: true
           });
-          this.modifyCamera(message.uuid, camera => camera.error = message.message);
-          this.setCameraError(message.uuid, message.message);
           if (this.messages.length > 50) {
             this.messages = this.messages.slice(-50);
           }
         }
       },
       modifyCamera (uuid, fn) {
+        if (!this.cameras) {
+          return;
+        }
         for (const camera of this.cameras) {
           if (camera.uuid === uuid) {
             fn(camera);
-            break;
+            return camera;
           }
         }
       }
@@ -48,14 +56,19 @@ async function main () {
   });
 
   try {
-    const response = await fetch('/cameras');
-    const cameras = await response.json();
-    app.cameras = cameras.map(camera => ({
-      ...camera,
-      imageVersion: 1,
-      loading: false
-    }));
-    const socket = new WebSocket(`ws://${location.host}/events`);
+    const socket = new ReconnectingWebSocket(`ws://${location.host}/events`);
+    socket.onopen = async () => {
+      const response = await fetch('/cameras');
+      const cameras = await response.json();
+      app.cameras = cameras.map(camera => ({
+        ...camera,
+        imageVersion: 1
+      }));
+      app.connectionLost = false;
+    };
+    socket.onclose = () => {
+      app.connectionLost = true;
+    };
     socket.onmessage = message => {
       app.processMessage(JSON.parse(message.data));
     };
