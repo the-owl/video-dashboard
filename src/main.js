@@ -52,7 +52,12 @@ async function main () {
         }
       }
     },
-    template: `<App :cameras='cameras' :messages='messages' />`
+    template: `
+      <App
+        :cameras='cameras' :messages='messages'
+        :connectionLost='connectionLost'
+      />
+    `
   });
 
   try {

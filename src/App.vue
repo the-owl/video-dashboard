@@ -8,6 +8,7 @@
       </button>
     </transition>
 
+    <top-bar v-if='connectionLost' />
     <camera-grid :cameras='cameras' />
   </div>
   <div class='loading' v-else>
@@ -18,10 +19,11 @@
 <script>
 import LogPanel from './LogPanel';
 import CameraGrid from './CameraGrid';
+import TopBar from './TopBar';
 
 export default {
   components: {
-    CameraGrid, LogPanel
+    CameraGrid, LogPanel, TopBar
   },
   computed: {
     unreadCount () {
@@ -42,7 +44,7 @@ export default {
     }
   },
   name: 'App',
-  props: ['cameras', 'messages']
+  props: ['cameras', 'messages', 'connectionLost']
 }
 </script>
 
@@ -51,6 +53,10 @@ export default {
     display: flex;
     height: 100%;
     width: 100%;
+  }
+
+  .root {
+    flex-direction: column;
   }
 
   .loading {
