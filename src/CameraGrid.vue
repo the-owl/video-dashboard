@@ -12,9 +12,9 @@
           </div>
           <div v-if='camera(x, y).loading' class='loading'>
             <hollow-dots-spinner
-              :animation-duration="2000"
+              :animation-duration="1500"
               :dot-size="dotSize"
-              :dots-num="5"
+              :dots-num="3"
               color="#ffffff"
             />
           </div>
@@ -47,7 +47,7 @@ export default {
       return this.cellSize / 15;
     },
     fontSize () {
-      return String(this.cellSize / 8) + 'px';
+      return String(this.cellSize * this.settings.fontSize / 100) + 'px';
     },
     grid () {
       const variants = [];
@@ -140,7 +140,7 @@ export default {
       window.addEventListener('resize', this.updateDimensions);
     })
   },
-  props: ['cameras']
+  props: ['cameras', 'settings']
 }
 </script>
 
@@ -233,7 +233,7 @@ export default {
 
   .info .loading {
     align-items: center;
-    background: rgba(0, 153, 255, 0.336);
+    background: rgba(0, 153, 255, 0.658);
     display: flex;
     height: 100%;
     justify-content: center;

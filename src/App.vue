@@ -1,15 +1,18 @@
 <template>
   <div class='root' v-if='cameras'>
     <transition name='slide-out'>
-      <log-panel v-if='showLogs' :messages='messages' @close='toggleLogs' />
-      <button v-else @click='toggleLogs' class='messages-button'>
-        Сообщения
-        <span v-if='unreadCount' class='badge'>{{ unreadCount }}</span>
-      </button>
+      <menu-panel v-if='menuVisible' :ok='!connectionLost' :messages='messages' @close='hideMenu'
+                  :settings='settings' />
     </transition>
 
-    <top-bar v-if='connectionLost' />
-    <camera-grid :cameras='cameras' />
+    <transition name='fade'>
+      <div class='backdrop' v-if='menuVisible' @click='hideMenu'></div>
+    </transition>
+
+    <top-bar :ok='!connectionLost' :unreadCount='unreadCount' @toggleMenu='showMenu'>
+      Все камеры
+    </top-bar>
+    <camera-grid :cameras='cameras' :settings='settings' />
   </div>
   <div class='loading' v-else>
     Загружаем камеры...
@@ -17,13 +20,13 @@
 </template>
 
 <script>
-import LogPanel from './LogPanel';
+import MenuPanel from './MenuPanel';
 import CameraGrid from './CameraGrid';
 import TopBar from './TopBar';
 
 export default {
   components: {
-    CameraGrid, LogPanel, TopBar
+    CameraGrid, MenuPanel, TopBar
   },
   computed: {
     unreadCount () {
@@ -32,19 +35,22 @@ export default {
   },
   data () {
     return {
-      showLogs: false
+      menuVisible: false
     };
   },
   methods: {
-    toggleLogs () {
-      this.showLogs = !this.showLogs;
+    hideMenu () {
+      this.menuVisible = false;
+    },
+    showMenu () {
+      this.menuVisible = true;
       for (const message of this.messages) {
         message.unread = false;
       }
     }
   },
   name: 'App',
-  props: ['cameras', 'messages', 'connectionLost']
+  props: ['cameras', 'messages', 'connectionLost', 'settings']
 }
 </script>
 
@@ -66,54 +72,30 @@ export default {
     justify-content: center;
   }
 
-  .messages-button {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    box-shadow: rgba(127, 127, 127, 0.5) 0 2px 5px;
-    bottom: 30px;
-    color: #666;
-    font-size: 14px;
-    left: 30px;
-    margin-bottom: 0;
-    outline: none !important;
-    padding: 10px 30px;
-    position: absolute;
-    transition: background-color .5s, transform .3s ease-out, box-shadow .3s ease-out;
-    user-select: none;
-    z-index: 10;
-  }
-
-  .messages-button:hover {
-    background-color: #f6f6f6;
-  }
-
-  .messages-button:active {
-    background-color: #f1f1f1;
-    box-shadow: rgba(127, 127, 127, 0.5) 0 1px 3px;
-    transform: perspective(100px) translateZ(-2px);
-  }
-
-  .messages-button .badge {
-    align-items: center;
-    background: red;
-    border-radius: 20px;
-    bottom: 0;
-    color: white;
-    display: flex;
-    font-size: 15px;
-    font-weight: bold;
-    height: 25px;
-    justify-content: center;
-    margin: 0 -7px -7px 0;
-    min-width: 25px;
-    padding: 0 1px;
-    position: absolute;
-    right: 0;
-  }
-
   .root .camera-grid {
     flex: 1;
+  }
+
+  .backdrop {
+    background-color: rgba(87, 87, 87, 0.75);
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1;
+  }
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.35s linear;
+  }
+
+  .fade-enter-active, .fade-leave {
+    opacity: 1;
+  }
+
+  .fade-enter, .fade-leave-active {
+    opacity: 0;
   }
 </style>
 
@@ -136,6 +118,6 @@ export default {
   }
 
   .slide-out-enter, .slide-out-leave-active {
-    transform: translateX(-200%);
+    transform: translateX(-100%);
   }
 </style>

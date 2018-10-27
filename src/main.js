@@ -1,9 +1,24 @@
 import Vue from 'vue';
 import App from './App';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import throttle from 'lodash/throttle';
 
 Vue.config.productionTip = false;
 
+const DEFAULT_SETTINGS = {
+  fontSize: 10
+};
+const SETTINGS_MIN_WRITE_INTERVAL = 1000;
+const SETTINGS_STORAGE_KEY = 'videoDashboardSettings';
+
+function readSettings () {
+  const storageString = localStorage.getItem(SETTINGS_STORAGE_KEY);
+  return storageString ? JSON.parse(storageString) : null;
+}
+
+function writeSettings (value) {
+  localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(value));
+}
 
 async function main () {
   const app = new Vue({
@@ -13,6 +28,7 @@ async function main () {
       cameras: null,
       connectionLost: false,
       messages: [],
+      settings: readSettings() || DEFAULT_SETTINGS,
       showLogs: false
     },
     methods: {
@@ -52,10 +68,15 @@ async function main () {
         }
       }
     },
+    created () {
+      this.$watch('settings', throttle(() => {
+        writeSettings(this.settings);
+      }, SETTINGS_MIN_WRITE_INTERVAL), { deep: true });
+    },
     template: `
       <App
         :cameras='cameras' :messages='messages'
-        :connectionLost='connectionLost'
+        :connectionLost='connectionLost' :settings='settings'
       />
     `
   });
