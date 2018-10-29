@@ -10,6 +10,7 @@
             <span class='name'>{{ camera(x, y).name }}</span>
             <span v-if='camera(x, y).error' class='error'>✗</span>
           </div>
+          <div class='time'>{{ lastUpdated(x, y) }}</div>
           <div v-if='camera(x, y).loading' class='loading'>
             <hollow-dots-spinner
               :animation-duration="1500"
@@ -31,7 +32,8 @@
 
 <script>
 import FullscreenVideo from './FullscreenVideo';
-import { HollowDotsSpinner } from 'epic-spinners'
+import { HollowDotsSpinner } from 'epic-spinners';
+import moment from 'moment';
 
 export default {
   components: {
@@ -111,6 +113,13 @@ export default {
       }
       return this.loadedVersions[index] === camera.imageVersion && camera.imageVersion > 1;
     },
+    lastUpdated (x, y) {
+      const camera = this.camera(x, y);
+      if (!camera.lastUpdated) {
+        return 'не обновлялась';
+      }
+      return moment.min(camera.lastUpdated, this.currentTime).from(this.currentTime);
+    },
     onLoaded (x, y) {
       const index = this.cameraIndex(x, y);
       this.loadedVersions[index] = this.cameras[index].imageVersion;
@@ -140,7 +149,7 @@ export default {
       window.addEventListener('resize', this.updateDimensions);
     })
   },
-  props: ['cameras', 'settings']
+  props: ['cameras', 'currentTime', 'settings']
 }
 </script>
 
@@ -244,6 +253,21 @@ export default {
     bottom: 0;
     left: 5px;
     position: absolute;
+  }
+
+  .info .time {
+    color: white;
+    font-size: 0.3em;
+    left: 5px;
+    opacity: 0;
+    position: absolute;
+    text-shadow: #000 0 0 2px;
+    top: 5px;
+    transition: opacity 0.2s linear;
+  }
+
+  .info:hover .time {
+    opacity: 1;
   }
 
   .fullscreen-video {

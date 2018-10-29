@@ -2,6 +2,11 @@ import Vue from 'vue';
 import App from './App';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import throttle from 'lodash/throttle';
+import moment from 'moment';
+
+moment.relativeTimeThreshold('s', 60);
+moment.relativeTimeThreshold('ss', 5);
+moment.locale('ru');
 
 Vue.config.productionTip = false;
 
@@ -38,13 +43,17 @@ async function main () {
           this.modifyCamera(message.uuid, camera => {
             camera.error = false;
             camera.imageVersion++;
+            camera.lastUpdated = moment.unix(message.time / 1000);
             this.maxImageVersion = Math.max(this.maxImageVersion, camera.imageVersion);
           });
         } else if (message.type === 'loading') {
           this.modifyCamera(message.uuid, camera => camera.loading = message.value);
         } else {
           const camera = this.modifyCamera(
-            message.uuid, camera => camera.error = message.message
+            message.uuid, camera => {
+              camera.error = message.message;
+              camera.lastUpdated = moment.unix(message.time / 1000);
+            }
           );
           if (!camera) {
             return;
@@ -90,7 +99,8 @@ async function main () {
       const cameras = await response.json();
       app.cameras = cameras.map(camera => ({
         ...camera,
-        imageVersion: app.maxImageVersion + 1
+        imageVersion: app.maxImageVersion + 1,
+        lastUpdated: camera.lastUpdated && moment.unix(camera.lastUpdated / 1000)
       }));
       app.connectionLost = false;
     };

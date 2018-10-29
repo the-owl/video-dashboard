@@ -12,7 +12,7 @@
     <top-bar :ok='!connectionLost' :unreadCount='unreadCount' @toggleMenu='showMenu'>
       Все камеры
     </top-bar>
-    <camera-grid :cameras='cameras' :settings='settings' />
+    <camera-grid :cameras='cameras' :settings='settings' :currentTime='currentTime' />
   </div>
   <div class='loading' v-else>
     Загружаем камеры...
@@ -23,6 +23,7 @@
 import MenuPanel from './MenuPanel';
 import CameraGrid from './CameraGrid';
 import TopBar from './TopBar';
+import moment from 'moment';
 
 export default {
   components: {
@@ -35,6 +36,7 @@ export default {
   },
   data () {
     return {
+      currentTime: moment(),
       menuVisible: false
     };
   },
@@ -48,6 +50,11 @@ export default {
         message.unread = false;
       }
     }
+  },
+  mounted () {
+    setInterval(() => {
+      this.currentTime = moment();
+    }, 10000);
   },
   name: 'App',
   props: ['cameras', 'messages', 'connectionLost', 'settings']
