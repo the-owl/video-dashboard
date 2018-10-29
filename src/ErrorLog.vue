@@ -1,5 +1,5 @@
 <template>
-  <ul v-if='messages.length'>
+  <ul v-if='messages.length' ref='list'>
     <li v-for='message in messages' :key='message.id' :class='"msg-" + message.type'>
       <h3 class='title'>{{ message.type === 'error' ? 'Ошибка' : 'Предупреждение' }}</h3>
       <div class='text'>{{ message.message }}</div>
@@ -14,6 +14,9 @@
 
 <script>
 export default {
+  mounted () {
+    this.$refs.list.scrollTop = this.$refs.list.scrollHeight;
+  },
   props: ['messages']
 };
 </script>
