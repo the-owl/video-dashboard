@@ -27,6 +27,7 @@ async function main () {
     data: {
       cameras: null,
       connectionLost: false,
+      maxImageVersion: 0,
       messages: [],
       settings: readSettings() || DEFAULT_SETTINGS,
       showLogs: false
@@ -37,6 +38,7 @@ async function main () {
           this.modifyCamera(message.uuid, camera => {
             camera.error = false;
             camera.imageVersion++;
+            this.maxImageVersion = Math.max(this.maxImageVersion, camera.imageVersion);
           });
         } else if (message.type === 'loading') {
           this.modifyCamera(message.uuid, camera => camera.loading = message.value);
@@ -88,7 +90,7 @@ async function main () {
       const cameras = await response.json();
       app.cameras = cameras.map(camera => ({
         ...camera,
-        imageVersion: 1
+        imageVersion: app.maxImageVersion + 1
       }));
       app.connectionLost = false;
     };
