@@ -46,6 +46,7 @@
   .group {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
   }
 
   .group > h5 {
@@ -56,5 +57,6 @@
 
   .group > :not(h5) {
     flex: 1;
+    min-width: 200px;
   }
 </style>
