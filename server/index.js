@@ -10,11 +10,21 @@ const WebsocketServer = require('./WebsocketServer');
 
 const app = express();
 const httpServer = http.createServer(app);
-const config = yaml.safeLoad(fs.readFileSync(
+const defaults = yaml.safeLoad(fs.readFileSync(
+  path.resolve(__dirname, '..', 'config.defaults.yaml')
+));
+const userConfig = yaml.safeLoad(fs.readFileSync(
   path.resolve(__dirname, '..', 'config.yaml')
 ));
+const config = Object.assign(defaults, userConfig);
 
-const cameras = config.cameras.map(camera => new Camera(camera));
+const cameras = config.cameras.map(camera => new Camera(Object.assign({
+  imageSize: config.imageSize,
+  streamType: config.streamType,
+  timeout: config.timeout
+}, camera, {
+  imagesPath: config.imagesPath
+})));
 
 app.get('/cameras', (req, res) => {
   res.status(200).json(cameras.map(camera => ({
@@ -30,7 +40,9 @@ app.use('/snapshots', express.static(path.resolve('snapshots')));
 app.use('/', express.static(path.resolve('dist')));
 
 if (!config.noReload) {
-  const reloader = new ConcurrentReloader(cameras, config.parallelReloads || 1);
+  const reloader = new ConcurrentReloader(cameras, {
+    consequentRetries: config.consequentRetries
+  }, config.parallelReloads);
   reloader.start();
   reloader.on('update', camera => console.log('Update:', camera.name, camera.uuid));
   reloader.on('updateAttemptError', (error, camera, attempt) => {

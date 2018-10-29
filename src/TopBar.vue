@@ -27,7 +27,7 @@ export default {
     align-items: center;
     background: rgb(43, 219, 20);
     display: flex;
-    height: 50px;
+    height: 30px;
     justify-content: flex-start;
     padding: 0 15px;
   }
@@ -57,7 +57,7 @@ export default {
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    height: 16px;
+    height: 12px;
     justify-content: space-between;
     outline: none !important;
     padding: 0;

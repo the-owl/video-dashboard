@@ -6,7 +6,7 @@ const AsyncTaskQueue = require('./AsyncTaskQueue');
 const DEFAULT_PRIORITY = 0;
 
 class ConcurrentReloader extends EventEmitter {
-  constructor (cameras, concurrency) {
+  constructor (cameras, params, concurrency) {
     super();
     this.reloaders = [];
     this._taskQueue = new AsyncTaskQueue();
@@ -16,7 +16,7 @@ class ConcurrentReloader extends EventEmitter {
     }
 
     for (let i = 0; i < concurrency; i++) {
-      const reloader = new Reloader(this._getQueueIterator());
+      const reloader = new Reloader(this._getQueueIterator(), params);
       this._forwardEvent(reloader, 'update');
       this._forwardEvent(reloader, 'updateError');
       this._forwardEvent(reloader, 'updateAttemptError');

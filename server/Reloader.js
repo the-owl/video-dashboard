@@ -1,7 +1,6 @@
 const { EventEmitter } = require('events');
 
 
-const CONSEQUENT_RETRIES = 3;
 const MAX_RETRIES_WITHOUT_DELAY = 6;
 const RETRY_DELAY = 1000;
 
@@ -10,11 +9,12 @@ const STATE_RUNNING = 1;
 const STATE_STOPPING = 2;
 
 class Reloader extends EventEmitter {
-  constructor (cameras) {
+  constructor (cameras, { consequentRetries }) {
     super();
     this.cameras = cameras;
     this.state = STATE_STOPPED;
     this.retryCounter = MAX_RETRIES_WITHOUT_DELAY;
+    this.consequentRetries = consequentRetries;
   }
 
   start () {
@@ -41,7 +41,7 @@ class Reloader extends EventEmitter {
 
   async _reloadCamera (camera) {
     let error = null;
-    for (let i = 0; i < CONSEQUENT_RETRIES; i++) {
+    for (let i = 0; i < this.consequentRetries; i++) {
       try {
         await camera.reload();
         camera.error = false;
@@ -59,7 +59,7 @@ class Reloader extends EventEmitter {
       }
     }
 
-    // If we reached this point - it means <CONSEQUENT_RETRIES> errors
+    // If we reached this point - it means <consequentRetries> errors
     camera.error = error.message;
     this.emit('updateError', error, camera);
   }
