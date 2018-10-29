@@ -257,7 +257,7 @@ export default {
 
   .info .time {
     color: white;
-    font-size: 0.3em;
+    font-size: 0.4em;
     left: 5px;
     opacity: 0;
     position: absolute;

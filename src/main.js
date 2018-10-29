@@ -11,7 +11,7 @@ moment.locale('ru');
 Vue.config.productionTip = false;
 
 const DEFAULT_SETTINGS = {
-  fontSize: 10
+  fontSize: 18
 };
 const SETTINGS_MIN_WRITE_INTERVAL = 1000;
 const SETTINGS_STORAGE_KEY = 'videoDashboardSettings';
