@@ -205,8 +205,12 @@ export default {
   }
 
   img {
+    bottom: 0;
     height: 100%;
-    position: relative;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
     width: 100%;
   }
 
