@@ -12,6 +12,11 @@ class WebsocketServer {
 
   _init () {
     this.server.on('connection', socket => {
+      // Send current time to allow server to synchronize
+      sendJson(socket, {
+        type: 'time',
+        value: Date.now()
+      });
       subscribeUntilClosed(this.reloader, 'updateError', this._sendError(socket), socket);
       subscribeUntilClosed(this.reloader, 'update', this._sendUpdate(socket), socket);
       subscribeUntilClosed(this.reloader, 'updateStart', this._sendLoading(socket, true), socket);

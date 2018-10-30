@@ -48,6 +48,11 @@ async function main () {
           });
         } else if (message.type === 'loading') {
           this.modifyCamera(message.uuid, camera => camera.loading = message.value);
+        } else if (message.type === 'time') {
+          const offset = message.value - Date.now();
+          moment.now = () => {
+            return Date.now() + offset;
+          };
         } else {
           const camera = this.modifyCamera(
             message.uuid, camera => {
