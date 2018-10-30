@@ -32,6 +32,7 @@ async function main () {
     data: {
       cameras: null,
       connectionLost: false,
+      currentTime: moment(),
       maxImageVersion: 0,
       messages: [],
       settings: readSettings() || DEFAULT_SETTINGS,
@@ -53,6 +54,7 @@ async function main () {
           moment.now = () => {
             return Date.now() + offset;
           };
+          this.updateCurrentTime();
         } else {
           const camera = this.modifyCamera(
             message.uuid, camera => {
@@ -82,6 +84,9 @@ async function main () {
             return camera;
           }
         }
+      },
+      updateCurrentTime () {
+        this.currentTime = moment();
       }
     },
     created () {
@@ -91,7 +96,7 @@ async function main () {
     },
     template: `
       <App
-        :cameras='cameras' :messages='messages'
+        :cameras='cameras' :messages='messages' :currentTime='currentTime'
         :connectionLost='connectionLost' :settings='settings'
       />
     `
@@ -115,6 +120,7 @@ async function main () {
     socket.onmessage = message => {
       app.processMessage(JSON.parse(message.data));
     };
+    setInterval(() => app.updateCurrentTime(), 10000);
   } catch (error) {
     alert('Не удалось инициализировать приложение. См. консоль браузера.');
     console.error(error);

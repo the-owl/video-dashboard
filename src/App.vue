@@ -51,13 +51,8 @@ export default {
       }
     }
   },
-  mounted () {
-    setInterval(() => {
-      this.currentTime = moment();
-    }, 10000);
-  },
   name: 'App',
-  props: ['cameras', 'messages', 'connectionLost', 'settings']
+  props: ['cameras', 'messages', 'connectionLost', 'currentTime', 'settings']
 }
 </script>
 
