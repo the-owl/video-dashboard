@@ -3,6 +3,8 @@ import App from './App';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import throttle from 'lodash/throttle';
 import moment from 'moment';
+// use sockjs as websocket "polyfill"
+import SockJS from 'sockjs-client';
 
 moment.relativeTimeThreshold('s', 60);
 moment.relativeTimeThreshold('ss', 5);
@@ -102,8 +104,8 @@ async function main () {
     `
   });
 
-  try {
-    const socket = new ReconnectingWebSocket(`ws://${location.host}/events`);
+  function connect () {
+    const socket = new SockJS(`/events`);
     socket.onopen = async () => {
       const response = await fetch('/cameras');
       const cameras = await response.json();
@@ -116,10 +118,15 @@ async function main () {
     };
     socket.onclose = () => {
       app.connectionLost = true;
+      setTimeout(connect, 2000);
     };
     socket.onmessage = message => {
       app.processMessage(JSON.parse(message.data));
     };
+  }
+
+  try {
+    connect();
     setInterval(() => app.updateCurrentTime(), 10000);
   } catch (error) {
     alert('Не удалось инициализировать приложение. См. консоль браузера.');

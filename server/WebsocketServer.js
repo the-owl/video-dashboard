@@ -1,13 +1,14 @@
-const websocket = require('ws');
+const sockjs = require('sockjs');
 
 
 class WebsocketServer {
   constructor (httpServer, reloader) {
-    this.server = new websocket.Server({
-      server: httpServer
+    this.server = sockjs.createServer({
+      log: () => {} // do not log anything
     });
     this.reloader = reloader;
     this._init();
+    this.server.installHandlers(httpServer, { prefix: '/events' });
   }
 
   _init () {
@@ -21,7 +22,9 @@ class WebsocketServer {
       subscribeUntilClosed(this.reloader, 'update', this._sendUpdate(socket), socket);
       subscribeUntilClosed(this.reloader, 'updateStart', this._sendLoading(socket, true), socket);
       subscribeUntilClosed(this.reloader, 'updateEnd', this._sendLoading(socket, false), socket);
+      socket.on('error', error => console.error('Websocket connection error: ', error));
     });
+    this.server.on('error', error => console.error('Websocket server error: ', error));
   }
 
   _sendError (socket) {
@@ -55,7 +58,7 @@ class WebsocketServer {
 }
 
 function sendJson (socket, data) {
-  socket.send(JSON.stringify(Object.assign({
+  socket.write(JSON.stringify(Object.assign({
     time: Date.now()
   }, data)));
 }

@@ -36,7 +36,6 @@ export default {
   },
   data () {
     return {
-      currentTime: moment(),
       menuVisible: false
     };
   },

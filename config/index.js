@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/events': {
-        target: 'ws://localhost:8000/events',
+        target: 'http://localhost:8000',
         ws: true
       },
       '/cameras': 'http://localhost:8000',
