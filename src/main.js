@@ -107,7 +107,10 @@ async function main () {
   function connect () {
     const socket = new SockJS(`/events`);
     socket.onopen = async () => {
-      const response = await fetch('/cameras');
+      const response = await fetch('/cameras', {
+        credentials: 'include',
+        mode: 'cors'
+      });
       const cameras = await response.json();
       app.cameras = cameras.map(camera => ({
         ...camera,
