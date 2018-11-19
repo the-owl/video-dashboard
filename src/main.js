@@ -42,6 +42,9 @@ async function main () {
     },
     methods: {
       processMessage (message) {
+        if ('failureCounter' in message) {
+          this.modifyCamera(message.uuid, camera => camera.failureCounter = message.failureCounter);
+        }
         if (message.type === 'update') {
           this.modifyCamera(message.uuid, camera => {
             camera.error = false;

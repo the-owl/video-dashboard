@@ -45,6 +45,7 @@ class Reloader extends EventEmitter {
       try {
         await camera.reload();
         camera.error = false;
+        camera.failureCounter = 0;
         this.emit('update', camera);
         this.retryCounter = MAX_RETRIES_WITHOUT_DELAY;
         return;
@@ -61,6 +62,7 @@ class Reloader extends EventEmitter {
 
     // If we reached this point - it means <consequentRetries> errors
     camera.error = error.message;
+    camera.failureCounter++;
     this.emit('updateError', error, camera);
   }
 

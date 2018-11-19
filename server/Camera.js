@@ -18,6 +18,8 @@ class Camera {
     this.streamType = streamType;
     this.timeout = timeout;
     this.updating = false;
+    // сколько раз подряд провалилось обновление камеры
+    this.failureCounter = 0;
     this._streamUrl = null;
   }
 

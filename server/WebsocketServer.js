@@ -30,6 +30,7 @@ class WebsocketServer {
   _sendError (socket) {
     return function (error, camera) {
       sendJson(socket, {
+        failureCounter: camera.failureCounter,
         message: error.message,
         type: 'error',
         uuid: camera.uuid
@@ -50,6 +51,7 @@ class WebsocketServer {
   _sendUpdate (socket) {
     return function (camera) {
       sendJson(socket, {
+        failureCounter: camera.failureCounter,
         type: 'update',
         uuid: camera.uuid
       });

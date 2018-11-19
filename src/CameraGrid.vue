@@ -8,7 +8,8 @@
              :class='{ reloaded: isReloaded(x, y), info: true }'>
           <div class='text'>
             <span class='name'>{{ camera(x, y).name }}</span>
-            <span v-if='camera(x, y).error' class='error'>✗</span>
+            <span v-if='hasSingleError(x, y)' class='error doubt'>?</span>
+            <span v-if='hasErrors(x, y)' class='error'>✗</span>
           </div>
           <div class='time'>{{ lastUpdated(x, y) }}</div>
           <div v-if='camera(x, y).loading' class='loading'>
@@ -104,6 +105,12 @@ export default {
       this.$nextTick(() => {
         this.fullscreen = null;
       });
+    },
+    hasErrors (x, y) {
+      return this.camera(x, y).failureCounter > 1;
+    },
+    hasSingleError (x, y) {
+      return this.camera(x, y).failureCounter === 1;
     },
     isReloaded (x, y) {
       const index = this.cameraIndex(x, y);
@@ -225,6 +232,11 @@ export default {
 
   .error {
     color: red;
+  }
+
+  .error.doubt {
+    color: yellow;
+    font-size: 1.2em;
   }
 
   .ok {
