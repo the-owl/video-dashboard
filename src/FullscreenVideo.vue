@@ -5,7 +5,7 @@
       <button class='close-button' @click='$emit("close")'>✕</button>
     </h2>
     <div class='image-container'>
-      <iframe v-if='open' :src='src' marginwidth="0" marginheight="0" @load='loaded = true'></iframe>
+      <iframe v-if='open' :src='src' marginwidth="0" marginheight="0" @load='loaded = true' allowfullscreen seamless='seamless'></iframe>
       <transition name='iframe'>
         <img v-if='!open || !loaded' :src='imgSrc' />
       </transition>
@@ -22,7 +22,7 @@
 export default {
   computed: {
     src () {
-      return `https://ipeye.ru/ipeye_service/api/api.php?dev=${this.camera.uuid}&tupe=rtmp&autoplay=1&logo=1`;
+      return `https://ipeye.ru/ipeye_service/api/iframe.php?iframe_player=1&dev=${this.camera.uuid}&tupe=rtmp&autoplay=1&logo=1`;
     }
   },
   data () {
