@@ -2,7 +2,7 @@
   <div class='root' v-if='cameras'>
     <transition name='slide-out'>
       <menu-panel v-if='menuVisible' :ok='!connectionLost' :messages='messages' @close='hideMenu'
-                  :settings='settings' />
+                  :settings='settings' :cameras='cameras' />
     </transition>
 
     <transition name='fade'>

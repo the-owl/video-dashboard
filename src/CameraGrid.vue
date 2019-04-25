@@ -1,15 +1,15 @@
 <template>
   <div class='camera-grid' :style='{ fontSize }'>
     <div v-for='y in grid.rows' class='row' :key='y'>
-      <div v-for='x in grid.columns' class='column' :key='x'>
+      <div v-for='x in grid.columns' :class='["column", { inactive: isInactive(x, y) }]' :key='x'>
         <img v-if='cameraExists(x, y)'
              :src='source(x, y)' @load='onLoaded(x, y)' />
         <div v-if='cameraExists(x, y)' @click='openFullscreen($event, x, y)'
              :class='{ reloaded: isReloaded(x, y), info: true }'>
           <div class='text'>
             <span class='name'>{{ camera(x, y).name }}</span>
-            <span v-if='hasSingleError(x, y)' class='error doubt'>?</span>
-            <span v-if='hasErrors(x, y)' class='error'>✗</span>
+            <span v-if='!isInactive(x, y) && hasSingleError(x, y)' class='error doubt'>?</span>
+            <span v-if='!isInactive(x, y) && hasErrors(x, y)' class='error'>✗</span>
           </div>
           <div class='time'>{{ lastUpdated(x, y) }}</div>
           <div v-if='camera(x, y).loading' class='loading'>
@@ -112,6 +112,10 @@ export default {
     hasSingleError (x, y) {
       return this.camera(x, y).failureCounter === 1;
     },
+    isInactive (x, y) {
+      const camera = this.camera(x, y);
+      return camera && (this.settings.inactiveCameras.indexOf(camera.uuid) !== -1);
+    },
     isReloaded (x, y) {
       const index = this.cameraIndex(x, y);
       const camera = this.cameras[index];
@@ -209,6 +213,10 @@ export default {
     display: flex;
     flex: 1;
     position: relative;
+  }
+
+  .column.inactive .text {
+    opacity: 0.5;
   }
 
   img {

@@ -18,7 +18,7 @@
         <span class='arrow'>▶</span>
       </h2>
       <div class='content'>
-        <local-settings :settings='settings' />
+        <local-settings :settings='settings' :cameras='cameras' />
       </div>
     </section>
   </div>
@@ -46,7 +46,7 @@
         this.open = what;
       }
     },
-    props: ['messages', 'ok', 'settings']
+    props: ['cameras', 'messages', 'ok', 'settings']
   };
 </script>
 

@@ -13,7 +13,8 @@ moment.locale('ru');
 Vue.config.productionTip = false;
 
 const DEFAULT_SETTINGS = {
-  fontSize: 18
+  fontSize: 18,
+  inactiveCameras: []
 };
 const SETTINGS_MIN_WRITE_INTERVAL = 1000;
 const SETTINGS_STORAGE_KEY = 'videoDashboardSettings';
@@ -37,7 +38,10 @@ async function main () {
       currentTime: moment(),
       maxImageVersion: 0,
       messages: [],
-      settings: readSettings() || DEFAULT_SETTINGS,
+      settings: {
+        ...DEFAULT_SETTINGS,
+        ...(readSettings() || {})
+      },
       showLogs: false
     },
     methods: {

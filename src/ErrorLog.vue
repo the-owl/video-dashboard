@@ -15,7 +15,9 @@
 <script>
 export default {
   mounted () {
-    this.$refs.list.scrollTop = this.$refs.list.scrollHeight;
+    if (this.$refs.list) {
+      this.$refs.list.scrollTop = this.$refs.list.scrollHeight;
+    }
   },
   props: ['messages']
 };
