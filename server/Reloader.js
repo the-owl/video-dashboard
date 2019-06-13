@@ -48,6 +48,10 @@ class Reloader extends EventEmitter {
         camera.failureCounter = 0;
         this.emit('update', camera);
         this.retryCounter = MAX_RETRIES_WITHOUT_DELAY;
+        if (camera.poweredOff) {
+          // if camera was successfully updated - it is not powered off, actually
+          await camera.setPoweredOff(false);
+        }
         return;
       } catch (err) {
         error = err;

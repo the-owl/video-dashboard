@@ -2,12 +2,16 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs-extra');
 const fetch = require('node-fetch');
+const { EventEmitter } = require('events');
 
 
 const OUTPUT_FILENAME = 'output.jpg';
 
-class Camera {
-  constructor ({ imageSize, imagesPath, name, streamType, timeout, uuid }) {
+class Camera extends EventEmitter {
+  constructor ({
+    imageSize, imagesPath, name, streamType, timeout, uuid
+  }, storage) {
+    super();
     this.name = name;
     this.error = null;
     this.uuid = uuid;
@@ -17,6 +21,7 @@ class Camera {
     this.lastSuccessfulUpdate = null;
     this.streamType = streamType;
     this.timeout = timeout;
+    this._storage = storage;
     this.updating = false;
     // сколько раз подряд провалилось обновление камеры
     this.failureCounter = 0;
@@ -34,6 +39,10 @@ class Camera {
     }
     this._streamUrl = message;
     return message;
+  }
+
+  get poweredOff () {
+    return this._storage.isPoweredOff(this.uuid);
   }
 
   async reload () {
@@ -57,6 +66,11 @@ class Camera {
       this.lastUpdated = date || new Date();
       this.updating = false;
     }
+  }
+
+  async setPoweredOff (value) {
+    await this._storage.setPoweredOff(this.uuid, value);
+    this.emit('setPoweredOff', value);
   }
 
   _ensureDir () {

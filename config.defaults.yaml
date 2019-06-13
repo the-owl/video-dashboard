@@ -26,3 +26,6 @@ timeout: 30000
 #   name: произвольная строка
 #   uuid: UUID камеры в системе ipeye - можно получить его из кода для вставки <iframe>
 cameras: []
+
+# Файл, в котором хранятся состояния камер
+cameraStateFile: cameras.json

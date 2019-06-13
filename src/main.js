@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import App from './App';
-import ReconnectingWebSocket from 'reconnecting-websocket';
 import throttle from 'lodash/throttle';
 import moment from 'moment';
 // use sockjs as websocket "polyfill"
@@ -13,8 +12,7 @@ moment.locale('ru');
 Vue.config.productionTip = false;
 
 const DEFAULT_SETTINGS = {
-  fontSize: 18,
-  inactiveCameras: []
+  fontSize: 18
 };
 const SETTINGS_MIN_WRITE_INTERVAL = 1000;
 const SETTINGS_STORAGE_KEY = 'videoDashboardSettings';
@@ -64,7 +62,7 @@ async function main () {
             return Date.now() + offset;
           };
           this.updateCurrentTime();
-        } else {
+        } else if (message.type === 'error') {
           const camera = this.modifyCamera(
             message.uuid, camera => {
               camera.error = message.message;
@@ -74,13 +72,19 @@ async function main () {
           if (!camera) {
             return;
           }
-          this.messages.push({
-            ...message, camera,
-            unread: true
-          });
+          if (!camera.isPoweredOff) {
+            this.messages.push({
+              ...message, camera,
+              unread: true
+            });
+          }
           if (this.messages.length > 50) {
             this.messages = this.messages.slice(-50);
           }
+        } else if (message.type === 'poweredOff') {
+          this.modifyCamera(message.uuid, camera => {
+            camera.isPoweredOff = message.poweredOff;
+          });
         }
       },
       modifyCamera (uuid, fn) {

@@ -9,10 +9,22 @@ class WebsocketServer {
     this.reloader = reloader;
     this._init();
     this.server.installHandlers(httpServer, { prefix: '/events' });
+    this.activeSockets = new Set();
+  }
+
+  broadcastPoweredOff (camera, poweredOff) {
+    for (const socket of this.activeSockets) {
+      sendJson(socket, {
+        poweredOff,
+        type: 'poweredOff',
+        uuid: camera.uuid
+      });
+    }
   }
 
   _init () {
     this.server.on('connection', socket => {
+      this.activeSockets.add(socket);
       // Send current time to allow server to synchronize
       sendJson(socket, {
         type: 'time',
@@ -23,6 +35,7 @@ class WebsocketServer {
       subscribeUntilClosed(this.reloader, 'updateStart', this._sendLoading(socket, true), socket);
       subscribeUntilClosed(this.reloader, 'updateEnd', this._sendLoading(socket, false), socket);
       socket.on('error', error => console.error('Websocket connection error: ', error));
+      socket.on('close', () => this.activeSockets.delete(socket));
     });
     this.server.on('error', error => console.error('Websocket server error: ', error));
   }

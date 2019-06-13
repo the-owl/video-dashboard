@@ -10,6 +10,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "epic-spinners": "^1.0.3",
     "express": "^4.16.4",
     "fs-extra": "^7.0.0",

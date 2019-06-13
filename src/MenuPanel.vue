@@ -3,6 +3,15 @@
     <top-bar :menuMode='true' :ok='ok' :closable='true' @close='$emit("close")'>
       Меню
     </top-bar>
+    <section :class='{ open: isOpen("settings") }'>
+      <h2 class='header' @click='toggle("settings")'>
+        Настройки
+        <span class='arrow'>▶</span>
+      </h2>
+      <div class='content'>
+        <settings :settings='settings' :cameras='cameras' />
+      </div>
+    </section>
     <section :class='{ open: isOpen("log") }'>
       <h2 class='header' @click='toggle("log")'>
         Лог ошибок
@@ -12,30 +21,21 @@
         <error-log :messages='messages' />
       </div>
     </section>
-    <section :class='{ open: isOpen("log2") }'>
-      <h2 class='header' @click='toggle("log2")'>
-        Настройки
-        <span class='arrow'>▶</span>
-      </h2>
-      <div class='content'>
-        <local-settings :settings='settings' :cameras='cameras' />
-      </div>
-    </section>
   </div>
 </template>
 
 <script>
   import ErrorLog from './ErrorLog';
-  import LocalSettings from './LocalSettings';
+  import Settings from './Settings';
   import TopBar from './TopBar';
 
   export default {
     components: {
-      ErrorLog, LocalSettings, TopBar
+      ErrorLog, Settings, TopBar
     },
     data () {
       return {
-        open: 'log'
+        open: 'settings'
       };
     },
     methods: {
