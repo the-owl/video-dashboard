@@ -216,12 +216,11 @@ export default {
     position: relative;
   }
 
-  .column.powered-off img {
-    filter: contrast(25%);
-    transform: scale(1.1);
-  }
-
-  .column.powered-off .text {
+  .column.powered-off .info {
+    background-image: url('./off.svg');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 50% 70%;
     opacity: 0.5;
   }
 
