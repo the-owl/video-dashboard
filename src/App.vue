@@ -23,7 +23,6 @@
 import MenuPanel from './MenuPanel';
 import CameraGrid from './CameraGrid';
 import TopBar from './TopBar';
-import moment from 'moment';
 
 export default {
   components: {

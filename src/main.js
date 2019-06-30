@@ -107,12 +107,17 @@ async function main () {
         writeSettings(this.settings);
       }, SETTINGS_MIN_WRITE_INTERVAL), { deep: true });
     },
-    template: `
-      <App
-        :cameras='cameras' :messages='messages' :currentTime='currentTime'
-        :connectionLost='connectionLost' :settings='settings'
-      />
-    `
+    render (h) {
+      return h('App', {
+        props: {
+          cameras: this.cameras,
+          messages: this.messages,
+          currentTime: this.currentTime,
+          connectionLost: this.connectionLost,
+          settings: this.settings
+        }
+      });
+    }
   });
 
   function connect () {
