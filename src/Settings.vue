@@ -3,8 +3,8 @@
     <div class='group with-slider'>
       <div class='content'>
         <h5>Размер шрифта подписей камер</h5>
-        <slider :min='5' :max='30' :real-time='true' :tooltip-dir='"bottom"'
-                v-model='settings.fontSize' />
+        <slider :min='5' :max='30' :tooltipPlacement='"bottom"'
+                :value='settings.fontSize' @change='setFontSize' />
       </div>
       <p class='comment'>
         Эта настройка хранится локально на устройстве.
@@ -17,7 +17,7 @@
         <h5>Неактивные камеры</h5>
         <div class='camera-list'>
           <label v-for='camera in cameras' :key='camera.uuid' :class="{ inactive: camera.isPoweredOff }">
-            <input type='checkbox' :checked='camera.isPoweredOff' @change="toggle(camera)" />
+            <input type='checkbox' :checked='camera.isPoweredOff' @change="toggleCameraPoweredOff(camera)" />
             {{ camera.name }}
           </label>
         </div>
@@ -37,26 +37,20 @@
 
 <script>
   import Slider from 'vue-slider-component';
+  import 'vue-slider-component/theme/antd.css'
+  import { mapActions, mapState, mapMutations } from 'vuex';
 
   export default {
     components: {
       Slider
     },
-    methods: {
-      toggle (camera) {
-        camera.isPoweredOff = !camera.isPoweredOff;
-        fetch('/cameras/' + camera.uuid + '/poweredOff', {
-          body: JSON.stringify({ value: camera.isPoweredOff }),
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          method: 'PUT',
-          mode: 'cors'
-        });
-      }
+    computed: {
+      ...mapState(['cameras', 'settings'])
     },
-    props: ['cameras', 'settings']
+    methods: {
+      ...mapActions(['toggleCameraPoweredOff']),
+      ...mapMutations(['setFontSize'])
+    }
   };
 </script>
 

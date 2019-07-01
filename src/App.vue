@@ -1,8 +1,7 @@
 <template>
   <div class='root' v-if='cameras'>
     <transition name='slide-out'>
-      <menu-panel v-if='menuVisible' :ok='!connectionLost' :messages='messages' @close='hideMenu'
-                  :settings='settings' :cameras='cameras' />
+      <menu-panel v-if='menuVisible' :ok='!connectionLost' @close='hideMenu' />
     </transition>
 
     <transition name='fade'>
@@ -12,7 +11,7 @@
     <top-bar :ok='!connectionLost' :unreadCount='unreadCount' @toggleMenu='showMenu'>
       Все камеры
     </top-bar>
-    <camera-grid :cameras='cameras' :settings='settings' :currentTime='currentTime' />
+    <camera-grid />
   </div>
   <div class='loading' v-else>
     Загружаем камеры...
@@ -23,15 +22,17 @@
 import MenuPanel from './MenuPanel';
 import CameraGrid from './CameraGrid';
 import TopBar from './TopBar';
+import { mapGetters, mapState } from 'vuex';
 
 export default {
   components: {
     CameraGrid, MenuPanel, TopBar
   },
   computed: {
-    unreadCount () {
-      return this.messages.filter(m => m.unread).length;
-    }
+    ...mapGetters({
+      unreadCount: 'unreadMessagesCount'
+    }),
+    ...mapState(['cameras', 'connectionLost'])
   },
   data () {
     return {
@@ -44,13 +45,9 @@ export default {
     },
     showMenu () {
       this.menuVisible = true;
-      for (const message of this.messages) {
-        message.unread = false;
-      }
     }
   },
-  name: 'App',
-  props: ['cameras', 'messages', 'connectionLost', 'currentTime', 'settings']
+  name: 'App'
 }
 </script>
 

@@ -35,12 +35,16 @@
 import FullscreenVideo from './FullscreenVideo';
 import { HollowDotsSpinner } from 'epic-spinners';
 import moment from 'moment';
+import { mapState } from 'vuex';
+
+const IMAGE_ASPECT_RATIO = 16/9;
 
 export default {
   components: {
     FullscreenVideo, HollowDotsSpinner
   },
   computed: {
+    ...mapState(['cameras', 'currentTime', 'settings']),
     cellSize () {
       const cellWidth = this.width / this.grid.columns;
       const cellHeight = this.height / this.grid.rows;
@@ -65,7 +69,7 @@ export default {
       let best = null;
       let bestValue = null;
       for (const variant of variants) {
-        const ar = variant[0] / variant[1] * (16/9);
+        const ar = variant[0] / variant[1] * IMAGE_ASPECT_RATIO;
         const dist = Math.abs(ar - targetAR);
 
         if (!best || dist < bestValue) {
@@ -159,8 +163,7 @@ export default {
     this.$nextTick(() => {
       window.addEventListener('resize', this.updateDimensions);
     })
-  },
-  props: ['cameras', 'currentTime', 'settings']
+  }
 }
 </script>
 

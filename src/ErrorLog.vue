@@ -13,13 +13,17 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
+  computed: {
+    ...mapState(['messages'])
+  },
   mounted () {
     if (this.$refs.list) {
       this.$refs.list.scrollTop = this.$refs.list.scrollHeight;
     }
-  },
-  props: ['messages']
+  }
 };
 </script>
 

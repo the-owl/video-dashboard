@@ -9,7 +9,7 @@
         <span class='arrow'>▶</span>
       </h2>
       <div class='content'>
-        <settings :settings='settings' :cameras='cameras' />
+        <settings />
       </div>
     </section>
     <section :class='{ open: isOpen("log") }'>
@@ -18,7 +18,7 @@
         <span class='arrow'>▶</span>
       </h2>
       <div class='content'>
-        <error-log :messages='messages' />
+        <error-log />
       </div>
     </section>
   </div>
@@ -46,7 +46,7 @@
         this.open = what;
       }
     },
-    props: ['cameras', 'messages', 'ok', 'settings']
+    props: ['ok']
   };
 </script>
 
