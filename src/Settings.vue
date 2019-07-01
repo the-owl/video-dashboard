@@ -12,25 +12,6 @@
         отличаться.
       </p>
     </div>
-    <div class='group top-align'>
-      <div class='content'>
-        <h5>Неактивные камеры</h5>
-        <div class='camera-list'>
-          <label v-for='camera in cameras' :key='camera.uuid' :class="{ inactive: camera.isPoweredOff }">
-            <input type='checkbox' :checked='camera.isPoweredOff' @change="toggleCameraPoweredOff(camera)" />
-            {{ camera.name }}
-          </label>
-        </div>
-      </div>
-      <p class='comment'>
-        Если камера выключена, можно пометить её неактивной, чтобы ошибки от неё не мешали.
-        Камера автоматически становится активной, если удаётся получить с неё изображение.
-      </p>
-      <p class='comment'>
-        Эта настройка хранится на сервере.
-        Значение будет одинаковым независимо от того, где эта страница будет открыта.
-      </p>
-    </div>
     <div class='spacer'></div>
   </div>
 </template>
@@ -38,7 +19,7 @@
 <script>
   import Slider from 'vue-slider-component';
   import 'vue-slider-component/theme/antd.css'
-  import { mapActions, mapState, mapMutations } from 'vuex';
+  import { mapState, mapMutations } from 'vuex';
 
   export default {
     components: {
@@ -48,7 +29,6 @@
       ...mapState(['cameras', 'settings'])
     },
     methods: {
-      ...mapActions(['toggleCameraPoweredOff']),
       ...mapMutations(['setFontSize'])
     }
   };

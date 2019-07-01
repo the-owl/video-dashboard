@@ -12,6 +12,10 @@
             <span v-if='!isPoweredOff(x, y) && hasErrors(x, y)' class='error'>✗</span>
           </div>
           <div class='time'>{{ lastUpdated(x, y) }}</div>
+          <div class='toggler'>
+            <input type='checkbox' :checked='!camera(x, y).isPoweredOff' @click.stop
+              @change="toggleCameraPoweredOff(camera(x, y))" />
+          </div>
           <div v-if='camera(x, y).loading' class='loading'>
             <hollow-dots-spinner
               :animation-duration="1500"
@@ -35,7 +39,7 @@
 import FullscreenVideo from './FullscreenVideo';
 import { HollowDotsSpinner } from 'epic-spinners';
 import moment from 'moment';
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 const IMAGE_ASPECT_RATIO = 16/9;
 
@@ -95,6 +99,7 @@ export default {
     window.removeEventListener('resize', this.updateDimensions);
   },
   methods: {
+    ...mapActions(['toggleCameraPoweredOff']),
     camera (x, y) {
       return this.cameras[this.cameraIndex(x, y)];
     },
@@ -300,6 +305,17 @@ export default {
 
   .info:hover .time {
     opacity: 1;
+  }
+
+  .toggler {
+    bottom: 5px;
+    height: auto;
+    position: absolute;
+    right: 5px;
+  }
+
+  .toggler input {
+    display: block;
   }
 
   .fullscreen-video {
