@@ -22,7 +22,9 @@
 export default {
   computed: {
     src () {
-      return `https://ipeye.ru/ipeye_service/api/iframe.php?iframe_player=1&dev=${this.camera.uuid}&tupe=rtmp&autoplay=1&logo=1`;
+      return this.camera.backend === 'ipeye' ?
+        `https://ipeye.ru/ipeye_service/api/iframe.php?iframe_player=1&dev=${this.camera.id}&tupe=rtmp&autoplay=1&logo=1` :
+        `https://rtsp.me/embed/${this.camera.id}`;
     }
   },
   data () {

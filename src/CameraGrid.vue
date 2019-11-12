@@ -156,8 +156,8 @@ export default {
       this.fullscreen = { camera, imgSrc: this.source(x, y), open: false, style };
     },
     source (x, y) {
-      const { imageVersion, uuid } = this.cameras[this.cameraIndex(x, y)];
-      return `/snapshots/${uuid}/output.jpg?v=` + imageVersion;
+      const { imageVersion, id } = this.cameras[this.cameraIndex(x, y)];
+      return `/snapshots/${id}/output.jpg?v=` + imageVersion;
     },
     updateDimensions () {
       this.height = window.innerHeight;
