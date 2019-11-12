@@ -15,12 +15,12 @@ const SETTINGS_STORAGE_KEY = 'videoDashboardSettings';
 
 Vue.use(Vuex);
 
-function modifyCamera (cameras, uuid, fn) {
+function modifyCamera (cameras, id, fn) {
   if (!cameras) {
     return;
   }
   for (const camera of cameras) {
-    if (camera.uuid === uuid) {
+    if (camera.id === id) {
       fn(camera);
       return camera;
     }
@@ -82,12 +82,12 @@ export function createStore () {
             commit('updateCamera', {
               failureCounter: message.failureCounter,
               time: moment.unix(message.time / 1000),
-              uuid: message.uuid
+              id: message.id
             });
             break;
           case 'loading':
             commit('setLoadingStatus', {
-              uuid: message.uuid,
+              id: message.id,
               value: message.value
             });
             break;
@@ -100,12 +100,12 @@ export function createStore () {
               error: message.message,
               failureCounter: message.failureCounter,
               time: moment.unix(message.time / 1000),
-              uuid: message.uuid
+              id: message.id
             });
             break;
           case 'poweredOff':
             commit('setPoweredOff', {
-              uuid: message.uuid,
+              id: message.id,
               value: message.poweredOff
             });
             break;
@@ -119,14 +119,16 @@ export function createStore () {
       },
 
       async toggleCameraPoweredOff ({ commit }, camera) {
-        commit('toggleCameraPoweredOff', camera.uuid);
-        await fetch('/cameras/' + camera.uuid + '/poweredOff', {
-          body: JSON.stringify({ value: camera.isPoweredOff }),
+        commit('toggleCameraPoweredOff', camera.id);
+        await fetch('/cameras/' + camera.id, {
+          body: JSON.stringify({
+            poweredOff: camera.poweredOff,
+          }),
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json'
           },
-          method: 'PUT',
+          method: 'PATCH',
           mode: 'cors'
         });
       }
@@ -143,13 +145,13 @@ export function createStore () {
           camera.imageVersion = state.maxImageVersion;
         }
       },
-      setCameraError (state, { error, failureCounter, time, uuid }) {
-        const camera = modifyCamera(state.cameras, uuid, camera => {
+      setCameraError (state, { error, failureCounter, time, id }) {
+        const camera = modifyCamera(state.cameras, id, camera => {
           camera.error = error;
           camera.failureCounter = failureCounter;
           camera.lastUpdated = time;
         });
-        if (camera && !camera.isPoweredOff) {
+        if (camera && !camera.poweredOff) {
           state.messages.push({
             camera,
             message: error,
@@ -173,21 +175,21 @@ export function createStore () {
       setFontSize (state, fontSize) {
         state.settings.fontSize = fontSize;
       },
-      setLoadingStatus (state, { uuid, value }) {
-        modifyCamera(state.cameras, uuid, camera => camera.loading = value);
+      setLoadingStatus (state, { id, value }) {
+        modifyCamera(state.cameras, id, camera => camera.loading = value);
       },
-      setPoweredOff(state, { uuid, value }) {
-        modifyCamera(state, uuid, camera => {
-          camera.isPoweredOff = value;
+      setPoweredOff(state, { id, value }) {
+        modifyCamera(state, id, camera => {
+          camera.poweredOff = value;
         });
       },
-      toggleCameraPoweredOff (state, uuid) {
-        modifyCamera(state.cameras, uuid,
-          camera => camera.isPoweredOff = !camera.isPoweredOff
+      toggleCameraPoweredOff (state, id) {
+        modifyCamera(state.cameras, id,
+          camera => camera.poweredOff = !camera.poweredOff
         );
       },
-      updateCamera (state, { failureCounter, time, uuid }) {
-        const camera = modifyCamera(state.cameras, uuid, camera => {
+      updateCamera (state, { failureCounter, time, id }) {
+        const camera = modifyCamera(state.cameras, id, camera => {
           camera.error = false;
           camera.failureCounter = failureCounter;
           camera.imageVersion++;

@@ -80,10 +80,6 @@
     align-items: flex-start;
   }
 
-  .group.with-slider > .content {
-    padding-bottom: 32px;
-  }
-
   .camera-list {
     display: flex;
     flex-direction: row;

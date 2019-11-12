@@ -1,19 +1,19 @@
 <template>
   <div class='camera-grid' :style='{ fontSize }'>
     <div v-for='y in grid.rows' class='row' :key='y'>
-      <div v-for='x in grid.columns' :class='["column", { "powered-off": isPoweredOff(x, y) }]' :key='x'>
+      <div v-for='x in grid.columns' :class='["column", { "powered-off": poweredOff(x, y) }]' :key='x'>
         <img v-if='cameraExists(x, y)'
              :src='source(x, y)' @load='onLoaded(x, y)' />
         <div v-if='cameraExists(x, y)' @click='openFullscreen($event, x, y)'
              :class='{ reloaded: isReloaded(x, y), info: true }'>
           <div class='text'>
             <span class='name'>{{ camera(x, y).name }}</span>
-            <span v-if='!isPoweredOff(x, y) && hasSingleError(x, y)' class='error doubt'>?</span>
-            <span v-if='!isPoweredOff(x, y) && hasErrors(x, y)' class='error'>✗</span>
+            <span v-if='!poweredOff(x, y) && hasSingleError(x, y)' class='error doubt'>?</span>
+            <span v-if='!poweredOff(x, y) && hasErrors(x, y)' class='error'>✗</span>
           </div>
           <div class='time'>{{ lastUpdated(x, y) }}</div>
           <div class='toggler'>
-            <input type='checkbox' :checked='!camera(x, y).isPoweredOff' @click.stop
+            <input type='checkbox' :checked='!camera(x, y).poweredOff' @click.stop
               @change="toggleCameraPoweredOff(camera(x, y))" />
           </div>
           <div v-if='camera(x, y).loading' class='loading'>
@@ -62,7 +62,7 @@ export default {
     },
     grid () {
       const variants = [];
-      for (let rowCount = 1; rowCount < this.cameras.length; rowCount++) {
+      for (let rowCount = 1; rowCount <= this.cameras.length; rowCount++) {
         const columnCount = Math.ceil(this.cameras.length / rowCount);
         const hasEmptyRows = rowCount * columnCount - this.cameras.length >= columnCount;
         if (!hasEmptyRows) {
@@ -121,9 +121,9 @@ export default {
     hasSingleError (x, y) {
       return this.camera(x, y).failureCounter === 1;
     },
-    isPoweredOff (x, y) {
+    poweredOff (x, y) {
       const camera = this.camera(x, y);
-      return camera && camera.isPoweredOff;
+      return camera && camera.poweredOff;
     },
     isReloaded (x, y) {
       const index = this.cameraIndex(x, y);
@@ -156,8 +156,8 @@ export default {
       this.fullscreen = { camera, imgSrc: this.source(x, y), open: false, style };
     },
     source (x, y) {
-      const { imageVersion, uuid } = this.cameras[this.cameraIndex(x, y)];
-      return `/snapshots/${uuid}/output.jpg?v=` + imageVersion;
+      const { imageVersion, id } = this.cameras[this.cameraIndex(x, y)];
+      return `/snapshots/${id}/output.jpg?v=` + imageVersion;
     },
     updateDimensions () {
       this.height = window.innerHeight;
@@ -197,7 +197,7 @@ export default {
     20% {
       background-color: rgba(255, 255, 255, 1);
     }
-    
+
     100% {
       background-color: rgba(255, 255, 255, 0);
     }

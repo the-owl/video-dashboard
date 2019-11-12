@@ -5,7 +5,7 @@
       <button class='close-button' @click='$emit("close")'>✕</button>
     </h2>
     <div class='image-container'>
-      <iframe v-if='open' :src='src' marginwidth="0" marginheight="0" @load='loaded = true' allowfullscreen seamless='seamless'></iframe>
+      <component v-if="open" :is="videoComponent" :camera="camera" @load="loaded = true" />
       <transition name='iframe'>
         <img v-if='!open || !loaded' :src='imgSrc' />
       </transition>
@@ -19,11 +19,17 @@
 </template>
 
 <script>
+import IpeyeVideo from './providers/IpeyeVideo';
+import RtspMeVideo from './providers/RtspMeVideo';
+
 export default {
   computed: {
-    src () {
-      return `https://ipeye.ru/ipeye_service/api/iframe.php?iframe_player=1&dev=${this.camera.uuid}&tupe=rtmp&autoplay=1&logo=1`;
-    }
+    videoComponent() {
+      return {
+        ipeye: IpeyeVideo,
+        'rtsp.me': RtspMeVideo,
+      }[this.camera.backend];
+    },
   },
   data () {
     return {
@@ -57,15 +63,6 @@ export default {
     font-size: 16px;
   }
 
-  .fullscreen-video iframe {
-    border: none;
-    box-sizing: border-box;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-  }
-
   .fullscreen-video .image-container {
     flex: 1;
     position: relative;
@@ -93,7 +90,7 @@ export default {
   .image-container > img {
     height: 100%;
     max-height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     width: 100%;
     z-index: 5;
   }
