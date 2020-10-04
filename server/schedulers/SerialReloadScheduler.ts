@@ -8,6 +8,11 @@ const RETRY_DELAY = 1000;
 
 export interface SerialReloadSchedulerConfig {
   consequentRetries: number;
+  delayBetweenReloads: number;
+}
+
+function sleep(ms: number) {
+  return ms > 0 ? new Promise(resolve => setTimeout(resolve, ms)) : Promise.resolve();
 }
 
 export class SerialReloadScheduler extends EventEmitter implements ReloadScheduler {
@@ -51,6 +56,7 @@ export class SerialReloadScheduler extends EventEmitter implements ReloadSchedul
     while (true) {
       for await (const camera of this.cameras) {
         yield camera;
+        await sleep(this.config.delayBetweenReloads * 1000);
       }
     }
   }
@@ -103,8 +109,4 @@ export class SerialReloadScheduler extends EventEmitter implements ReloadSchedul
     this._state = ReloadSchedulerState.STATE_STOPPED;
     this.emit('stop');
   }
-}
-
-function sleep (ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }

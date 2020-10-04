@@ -34,6 +34,7 @@ async function main () {
 
   const scheduler = new ConcurrentReloadScheduler(reloader, cameras, {
     concurrency: config.scheduler.parallelReloads,
+    delayBetweenReloads: config.scheduler.delayBetweenReloads,
     consequentRetries: config.scheduler.consequentRetries,
   });
 
