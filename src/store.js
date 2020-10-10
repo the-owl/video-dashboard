@@ -84,6 +84,10 @@ export function createStore () {
               time: moment.unix(message.time / 1000),
               id: message.id
             });
+            commit('setPoweredOff', {
+              id: message.id,
+              value: false
+            });
             break;
           case 'loading':
             commit('setLoadingStatus', {
@@ -120,13 +124,13 @@ export function createStore () {
 
       async toggleCameraPoweredOff ({ commit }, camera) {
         commit('toggleCameraPoweredOff', camera.id);
-        await fetch('/cameras/' + camera.id + '/poweredOff', {
-          body: JSON.stringify({ value: camera.isPoweredOff }),
+        await fetch('/cameras/' + camera.id, {
+          body: JSON.stringify({ poweredOff: camera.isPoweredOff }),
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json'
           },
-          method: 'PUT',
+          method: 'PATCH',
           mode: 'cors'
         });
       }
@@ -177,7 +181,7 @@ export function createStore () {
         modifyCamera(state.cameras, id, camera => camera.loading = value);
       },
       setPoweredOff(state, { id, value }) {
-        modifyCamera(state, id, camera => {
+        modifyCamera(state.cameras, id, camera => {
           camera.isPoweredOff = value;
         });
       },

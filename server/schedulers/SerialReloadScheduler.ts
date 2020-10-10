@@ -61,19 +61,14 @@ export class SerialReloadScheduler extends EventEmitter implements ReloadSchedul
     }
   }
 
-  private async reloadCamera (camera) {
+  private async reloadCamera (camera: Camera) {
     let error = null;
     for (let i = 0; i < this.config.consequentRetries; i++) {
       try {
         await this.reloader.reload(camera);
-        camera.error = false;
         camera.failureCounter = 0;
         this.emit('update', camera);
         this._retryCounter = MAX_RETRIES_WITHOUT_DELAY;
-        if (camera.poweredOff) {
-          // if camera was successfully updated - it is not powered off, actually
-          await camera.setPoweredOff(false);
-        }
         return;
       } catch (err) {
         error = err;

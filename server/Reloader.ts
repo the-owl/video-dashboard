@@ -18,8 +18,6 @@ export interface ReloaderConfig {
 const OUTPUT_FILENAME = 'output.jpg';
 
 export class Reloader {
-  protected streamCache = new Map<CameraId, string>();
-
   constructor (
     public readonly backends: BackendList,
     public readonly cameraStateStorage: CameraStateStorage,
@@ -43,6 +41,11 @@ export class Reloader {
       await this.removeSnapshots(snapshots.slice(1));
       await this.setResultingSnapshot(camera, snapshots[0]);
       camera.lastSuccessfulUpdate = date;
+      camera.error = null;
+      if (await this.cameraStateStorage.isPoweredOff(camera.id)) {
+        // if camera was successfully updated - it is not powered off, actually
+        await this.cameraStateStorage.setPoweredOff(camera.id, false);
+      }
     } finally {
       camera.lastUpdated = date || new Date();
       camera.updating = false;
