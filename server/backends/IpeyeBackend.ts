@@ -21,4 +21,8 @@ export class IpeyeBackend extends BaseCameraService {
     }
     return message;
   }
+
+  protected getStreamLifetime(): number {
+    return 60 * 60 * 1000; // 1 hour
+  }
 }

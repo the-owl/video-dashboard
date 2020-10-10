@@ -15,4 +15,8 @@ export class RtspMeBackend extends BaseCameraService {
 
     return match[1];
   }
+
+  protected getStreamLifetime(): number {
+    return 60 * 60 * 1000; // 1 hour
+  }
 }
