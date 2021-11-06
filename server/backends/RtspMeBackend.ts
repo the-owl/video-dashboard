@@ -1,5 +1,5 @@
 import { BaseCameraService } from './BaseCameraService';
-import * as fetch from 'node-fetch';
+import fetch from 'node-fetch';
 
 const VIDEO_URL_REGEX = /var n_url = "([^']+)";/i;
 

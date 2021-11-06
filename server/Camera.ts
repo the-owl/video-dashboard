@@ -1,5 +1,11 @@
 export type CameraId = string;
 
+export interface CameraInitOptions {
+  backend: string;
+  id: string;
+  name: string;
+}
+
 export class Camera {
   public backend: string;
   public error: string | null = null;
@@ -11,13 +17,9 @@ export class Camera {
 
   public failureCounter: number = 0;
 
-  constructor ({
-    backend,
-    id,
-    name,
-  }) {
+  constructor ({ backend, id, name }: CameraInitOptions) {
     this.backend = backend;
     this.name = name;
     this.id = id;
-  } 
+  }
 }

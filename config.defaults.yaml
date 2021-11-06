@@ -1,3 +1,11 @@
+auth:
+  # Время жизни сессии после авторизации (1 год, например)
+  jwtLifetime: '1y'
+  # Уникальный ключ для генерации токенов авторизации
+  jwtSignKey: '123'
+  # Хэш пароля (bcrypt, можно создать через bcrypt-password.js)
+  passwordHash: $2b$10$Bh6w2ua8ww1hN9Up4jhZ4.aioC536nc8OGYu8VIrqioBzyJ2WX0NG
+
 backends:
   ipeye:
     # Тип видеопотока, получаемого от ipeye. Возможные значения: rtsp, rtmp и hls.

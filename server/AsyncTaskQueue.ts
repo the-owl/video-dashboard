@@ -4,7 +4,7 @@ export class AsyncTaskQueue<Task> implements AsyncIterable<Task> {
 
   getTask (): Promise<Task> {
     if (this.taskQueue.length) {
-      return Promise.resolve(this.taskQueue.shift());
+      return Promise.resolve(this.taskQueue.shift()!);
     }
 
     return new Promise(resolve => {
@@ -19,7 +19,7 @@ export class AsyncTaskQueue<Task> implements AsyncIterable<Task> {
   pushTask (task: Task) {
     if (this.awaiterQueue.length) {
       const awaiter = this.awaiterQueue.shift();
-      awaiter(task);
+      awaiter!(task);
     } else {
       this.taskQueue.push(task);
     }

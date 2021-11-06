@@ -70,7 +70,7 @@ export class SerialReloadScheduler extends EventEmitter implements ReloadSchedul
         this.emit('update', camera);
         this._retryCounter = MAX_RETRIES_WITHOUT_DELAY;
         return;
-      } catch (err) {
+      } catch (err: any) {
         error = err;
         this.emit('updateAttemptError', error, camera, i + 1);
         if (this._retryCounter) {

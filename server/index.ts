@@ -3,7 +3,7 @@ import { setupExpressApp } from './http';
 import { Camera } from './Camera';
 import { JsonCameraStorage } from './storage/JsonCameraStorage';
 import * as http from 'http';
-import * as express from 'express';
+import express from 'express';
 import { WebsocketServer } from './http/WebsocketServer';
 import { ConcurrentReloadScheduler } from './schedulers/ConcurrentReloadScheduler';
 import { Reloader } from './Reloader';
@@ -17,7 +17,7 @@ async function main () {
   const cameraStateStorage = new JsonCameraStorage(config.cameraStateFile);
   await cameraStateStorage.init();
 
-  const cameras = config.cameras.map(camera => new Camera({
+  const cameras = config.cameras.map((camera: any) => new Camera({
     backend: config.defaultBackend,
     ...camera,
   })) as Camera[];
@@ -44,14 +44,18 @@ async function main () {
     console.error('(attempt: ' + attempt + ')');
   });
 
-  const websocketServer = new WebsocketServer(httpServer, scheduler);
+  const websocketServer = new WebsocketServer(httpServer, scheduler, config.auth.jwtSignKey);
 
-  setupExpressApp(app, cameras, cameraStateStorage, websocketServer);
+  setupExpressApp(app, cameras, cameraStateStorage, {
+    jwtLifetime: config.auth.jwtLifetime,
+    jwtSignKey: config.auth.jwtSignKey,
+    passwordHash: config.auth.passwordHash,
+  }, websocketServer);
 
   if (!config.noReload) {
     scheduler.start();
   }
-  httpServer.listen(config.http.port, '0.0.0.0', () => {
+  httpServer.listen(config.http.port, '::', () => {
     console.log('Listening at port ' + config.http.port);
   });
 }

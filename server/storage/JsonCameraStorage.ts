@@ -17,7 +17,7 @@ export class JsonCameraStorage implements CameraStateStorage {
 
   async init () {
     return this.runWithLock(async () => {
-      if (await fs.exists(this.filename)) {
+      if (await fs.pathExists(this.filename)) {
         const jsonString = await fs.readFile(this.filename, 'utf8');
         this.data = JSON.parse(jsonString);
       } else {
@@ -28,7 +28,7 @@ export class JsonCameraStorage implements CameraStateStorage {
   }
 
   isPoweredOff (id: CameraId) {
-    return Promise.resolve(this.data[id] || false);
+    return Promise.resolve(this.data![id] || false);
   }
 
   async setPoweredOff (id: CameraId, value: boolean) {
@@ -37,9 +37,9 @@ export class JsonCameraStorage implements CameraStateStorage {
     }
 
     if (value) {
-      this.data[id] = value;
+      this.data![id] = value;
     } else {
-      delete this.data[id];
+      delete this.data![id];
     }
 
     await this.runWithLock(() => this.dumpData());

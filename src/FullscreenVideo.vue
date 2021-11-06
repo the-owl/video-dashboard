@@ -1,50 +1,72 @@
 <template>
-  <div class='fullscreen-video'>
-    <h2 class='header'>
+  <div class="fullscreen-video">
+    <h2 class="fullscreen-video__header">
       {{ camera.name }}
-      <button class='close-button' @click='$emit("close")'>✕</button>
+      <button class="fullscreen-video__close-button" @click="$emit('close')">
+        ✕
+      </button>
     </h2>
-    <div class='image-container'>
-      <iframe v-if='open' :src='src' marginwidth="0" marginheight="0" @load='loaded = true' allowfullscreen seamless='seamless'></iframe>
-      <transition name='iframe'>
-        <img v-if='!open || !loaded' :src='imgSrc' />
-      </transition>
-      <transition name='iframe'>
-        <div v-if='open && !loaded' class='loading-tint'>
+    <div class="image-container">
+      <iframe
+        v-if="open"
+        class="image-container__frame image-container__item"
+        :src="frameSrc"
+        marginwidth="0"
+        marginheight="0"
+        allowfullscreen
+        seamless="seamless"
+        @load="onFrameLoad"
+      />
+      <Transition name="iframe">
+        <img v-if="!open || !loaded" class="image-container__image image-container__item" :src="imgSrc">
+      </Transition>
+      <Transition name="iframe">
+        <div v-if="open && !loaded" class="image-container__loading-tint image-container__item">
           Загрузка видео...
         </div>
-      </transition>
+      </Transition>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  computed: {
-    src () {
-      return this.camera.backend === 'ipeye' ?
-        `https://ipeye.ru/ipeye_service/api/iframe.php?iframe_player=1&dev=${this.camera.id}&tupe=rtmp&autoplay=1&logo=1` :
-        `https://rtsp.me/embed/${this.camera.id}`;
-    }
+<script lang="ts">
+import VueTypes from 'vue-types';
+import { computed, defineComponent, ref } from 'vue';
+
+export default defineComponent({
+  props: {
+    camera: VueTypes.object.isRequired,
+    imgSrc: VueTypes.string.isRequired,
+    open: VueTypes.bool.def(false),
   },
-  data () {
+  setup(props) {
+    const loaded = ref(false);
+    const frameSrc = computed(() => (props.camera.backend === 'ipeye' ?
+      `https://ipeye.ru/ipeye_service/api/iframe.php?iframe_player=1&dev=${props.camera.id}&tupe=rtmp&autoplay=1&logo=1` :
+      `https://rtsp.me/embed/${props.camera.id}`));
+
+    function onFrameLoad() {
+      loaded.value = true;
+    }
+
     return {
-      loaded: false
+      frameSrc,
+      loaded,
+      onFrameLoad,
     };
   },
-  props: ['camera', 'imgSrc', 'open']
-}
+});
 </script>
 
-<style scoped>
-  .fullscreen-video {
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-  }
+<style lang="scss" scoped>
+.fullscreen-video {
+  background-color: #4b4b4b;
+  display: flex;
+  flex-direction: column;
 
-  .header {
+  &__header {
     align-items: center;
+    background-color: white;
     box-shadow: #8888 0 1px 4px;
     display: flex;
     font-size: 24px;
@@ -53,13 +75,18 @@ export default {
     padding: 15px;
   }
 
-  .close-button {
+  &__close-button {
     background: none;
     border: none;
     font-size: 16px;
   }
+}
 
-  .fullscreen-video iframe {
+.image-container {
+  flex: 1;
+  position: relative;
+
+  &__frame {
     border: none;
     box-sizing: border-box;
     height: 100%;
@@ -68,12 +95,7 @@ export default {
     width: 100%;
   }
 
-  .fullscreen-video .image-container {
-    flex: 1;
-    position: relative;
-  }
-
-  .image-container > * {
+  &__item {
     bottom: 0;
     left: 0;
     position: absolute;
@@ -81,7 +103,15 @@ export default {
     top: 0;
   }
 
-  .loading-tint {
+  &__image {
+    height: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    width: 100%;
+    z-index: 5;
+  }
+
+  &__loading-tint {
     align-items: center;
     color: white;
     display: flex;
@@ -91,29 +121,21 @@ export default {
     text-shadow: #000 0 0 5px;
     z-index: 6;
   }
+}
 
-  .image-container > img {
-    height: 100%;
-    max-height: 100%;
-    object-fit: cover;
-    width: 100%;
-    z-index: 5;
-  }
-
-  .iframe-enter-active {
+.iframe {
+  &-enter-active {
+    opacity: 1;
     transition: opacity 0.4s ease;
   }
 
-  .iframe-leave-active {
+  &-leave-active {
     transition: opacity 0.65s ease;
   }
 
-  .iframe-enter-active {
-    opacity: 1;
-  }
-
-  .iframe-leave-active, .iframe-enter {
+  &-leave-to, &-enter-from {
     opacity: 0;
   }
+}
 </style>
 

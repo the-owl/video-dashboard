@@ -1,61 +1,77 @@
 <template>
-  <div class='menu-panel'>
-    <top-bar :menuMode='true' :ok='ok' :closable='true' @close='$emit("close")'>
+  <div class="menu-panel">
+    <TopBar menu-mode closable :ok="ok" @close="$emit('close')">
       Меню
-    </top-bar>
-    <section :class='{ open: isOpen("settings") }'>
-      <h2 class='header' @click='toggle("settings")'>
+    </TopBar>
+    <section class="menu-section">
+      <h2 class="menu-section__header">
         Настройки
-        <span class='arrow'>▶</span>
       </h2>
-      <div class='content'>
-        <settings />
-      </div>
+      <Settings class="menu-section__content" />
     </section>
-    <section :class='{ open: isOpen("log") }'>
-      <h2 class='header' @click='toggle("log")'>
+    <section class="menu-section menu-section_full-height">
+      <h2 class="menu-section__header">
         Лог ошибок
-        <span class='arrow'>▶</span>
       </h2>
-      <div class='content'>
-        <error-log />
-      </div>
+      <ErrorLog class="menu-section__content" />
     </section>
   </div>
 </template>
 
-<script>
-  import ErrorLog from './ErrorLog';
-  import Settings from './Settings';
-  import TopBar from './TopBar';
+<script lang="ts">
+import ErrorLog from './ErrorLog.vue';
+import Settings from './Settings.vue';
+import TopBar from './TopBar.vue';
+import { defineComponent } from 'vue';
+import VueTypes from 'vue-types';
 
-  export default {
-    components: {
-      ErrorLog, Settings, TopBar
-    },
-    data () {
-      return {
-        open: 'settings'
-      };
-    },
-    methods: {
-      isOpen (what) {
-        return this.open === what;
-      },
-      toggle (what) {
-        this.open = what;
-      }
-    },
-    props: ['ok']
-  };
+export default defineComponent({
+  components: {
+    ErrorLog, Settings, TopBar
+  },
+  props: {
+    ok: VueTypes.bool.def(true),
+  },
+});
 </script>
 
-<style scoped>
-  .header {
+<style lang="scss" scoped>
+.menu-panel {
+  background: white;
+  border-right: 1px solid #bbb;
+  box-shadow: rgba(127, 127, 127, 0.5) 0 0 5px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  left: -50px;
+  padding-left: 50px;
+  position: absolute;
+  top: 0;
+  width: 65vw;
+  z-index: 15;
+}
+
+.menu-section {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  min-height: 35px;
+  transition: flex-grow 0.35s ease;
+
+  & + .menu-section .menu-section__header {
+    border-top: 1px solid #666;
+  }
+
+  &_full-height {
+    flex: 1;
+  }
+
+  &__header {
     align-items: center;
     border-bottom: 1px solid #ccc;
     cursor: pointer;
     display: flex;
+    flex: 0 0 35px;
     font-size: 20px;
     height: 35px;
     justify-content: flex-start;
@@ -63,65 +79,17 @@
     padding: 0 15px;
   }
 
-  .header > .arrow {
-    font-size: 0.8em;
-  }
-
-  .menu-panel {
-    background: white;
-    border-right: 1px solid #bbb;
-    box-shadow: rgba(127, 127, 127, 0.5) 0 0 5px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    left: -50px;
-    padding-left: 50px;
-    position: absolute;
-    top: 0;
-    width: 65vw;
-    z-index: 15;
-  }
-
-  section {
-    display: flex;
-    flex: 0;
-    flex-direction: column;
-    min-height: 35px;
-    transition: flex-grow 0.35s ease;
-  }
-
-  .header, section.open > .content {
-    border-bottom: 1px solid #ccc;
-  }
-
-  section > .content {
+  &__content {
     display: flex;
     flex: 1;
     flex-direction: column;
     overflow: hidden;
   }
+}
 
-  section > .content > * {
-    flex: 1;
+@media (max-width: 350px) {
+  .menu-panel {
+    width: 100vw;
   }
-
-  section > .header .arrow {
-    display: block;
-    margin-left: 10px;
-    transition: transform 0.2s ease;
-  }
-
-  section.open {
-    flex-grow: 1;
-  }
-
-  section.open > .header .arrow {
-    transform: rotate(90deg);
-  }
-
-  @media (max-width: 350px) {
-    .menu-panel {
-      width: 100vw;
-    }
-  }
+}
 </style>

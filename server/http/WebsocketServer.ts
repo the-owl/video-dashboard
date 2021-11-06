@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import { Server } from 'http';
 import { ReloadScheduler } from '../schedulers/ReloadScheduler';
 import { Camera } from '../Camera';
+import * as jwt from 'jsonwebtoken';
 
 export class WebsocketServer {
   private activeSockets = new Set<sockjs.Connection>();
@@ -11,6 +12,7 @@ export class WebsocketServer {
   constructor (
     httpServer: Server,
     public readonly reloadScheduler: ReloadScheduler,
+    public readonly jwtSignKey: string,
   ) {
     this.server = sockjs.createServer({
       log: () => {} // do not log anything
@@ -31,20 +33,27 @@ export class WebsocketServer {
 
   init () {
     this.server.on('connection', socket => {
-      this.activeSockets.add(socket);
-      // Send current time to allow client to synchronize
-      this.sendJson(socket, {
-        type: 'time',
-        value: Date.now()
+      socket.once('data', message => {
+        try {
+          jwt.verify(message, this.jwtSignKey);
+          this.activeSockets.add(socket);
+          // Send current time to allow client to synchronize
+          this.sendJson(socket, {
+            type: 'time',
+            value: Date.now()
+          });
+          this.subscribeUntilClosed(this.reloadScheduler, 'updateError', this.sendError(socket), socket);
+          this.subscribeUntilClosed(this.reloadScheduler, 'update', this.sendUpdate(socket), socket);
+          this.subscribeUntilClosed(this.reloadScheduler, 'updateStart', this.sendLoading(socket, true), socket);
+          this.subscribeUntilClosed(this.reloadScheduler, 'updateEnd', this.sendLoading(socket, false), socket);
+        } catch {
+          console.warn('Non-authorized user connected to socket');
+        }
       });
-      this.subscribeUntilClosed(this.reloadScheduler, 'updateError', this.sendError(socket), socket);
-      this.subscribeUntilClosed(this.reloadScheduler, 'update', this.sendUpdate(socket), socket);
-      this.subscribeUntilClosed(this.reloadScheduler, 'updateStart', this.sendLoading(socket, true), socket);
-      this.subscribeUntilClosed(this.reloadScheduler, 'updateEnd', this.sendLoading(socket, false), socket);
-      socket.on('error', error => console.error('Websocket connection error: ', error));
+      socket.on('error', (error: any) => console.error('Websocket connection error: ', error));
       socket.on('close', () => this.activeSockets.delete(socket));
     });
-    this.server.on('error', error => console.error('Websocket server error: ', error));
+    this.server.on('error', (error: any) => console.error('Websocket server error: ', error));
   }
 
   private sendError (socket: sockjs.Connection) {

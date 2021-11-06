@@ -8,9 +8,13 @@ module.exports = {
       '/cameras': {
         target: 'http://localhost:8001'
       },
+      '/login': {
+        target: 'http://localhost:8001'
+      },
       '/snapshots': {
         target: 'http://localhost:8001'
       }
     }
-  }
+  },
+  lintOnSave: true,
 };

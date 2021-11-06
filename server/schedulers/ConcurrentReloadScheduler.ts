@@ -72,7 +72,7 @@ export class ConcurrentReloadScheduler extends EventEmitter implements ReloadSch
     }
   }
 
-  private stateIs (state) {
+  private stateIs(state: ReloadSchedulerState) {
     return this.schedulers.every(scheduler => scheduler.state === state);
   }
 }

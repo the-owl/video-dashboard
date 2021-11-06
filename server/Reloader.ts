@@ -65,7 +65,7 @@ export class Reloader {
   private async generateSnapshot (camera: Camera) {
     const streamUrl = await this.getStreamUrl(camera);
     const output = path.join(this.getSnapshotDir(camera.id), 'output.jpg');
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       exec(
         `ffmpeg -i ${streamUrl} -y -r 1 -t 1 -vf scale=${this.config.imageSize}:-1 ${output}`,
         {
@@ -96,7 +96,7 @@ export class Reloader {
     return backend.getStreamUrl(camera.id);
   }
 
-  private async removeSnapshots (snapshots) {
+  private async removeSnapshots (snapshots: string[]) {
     for (const file of snapshots) {
       await fs.unlink(file);
     }
