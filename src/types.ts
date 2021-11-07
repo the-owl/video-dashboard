@@ -1,6 +1,7 @@
 import { Moment } from 'moment';
 
 export interface Camera {
+  error: string | false | null;
   failureCounter: number;
   id: string;
   imageVersion: number;
@@ -8,4 +9,5 @@ export interface Camera {
   lastUpdated: Moment;
   loading: boolean;
   name: string;
+  watching: number;
 }

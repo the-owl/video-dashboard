@@ -9,6 +9,7 @@ import { ConcurrentReloadScheduler } from './schedulers/ConcurrentReloadSchedule
 import { Reloader } from './Reloader';
 import { IpeyeBackend } from './backends/IpeyeBackend';
 import { RtspMeBackend } from './backends/RtspMeBackend';
+import { WatcherCounter } from './WatcherCounter';
 
 
 async function main () {
@@ -30,6 +31,7 @@ async function main () {
   const app = express();
   const httpServer = http.createServer(app);
 
+  const watcherCounter = new WatcherCounter();
   const reloader = new Reloader(backends, cameraStateStorage, config.reloader);
 
   const scheduler = new ConcurrentReloadScheduler(reloader, cameras, {
@@ -44,9 +46,9 @@ async function main () {
     console.error('(attempt: ' + attempt + ')');
   });
 
-  const websocketServer = new WebsocketServer(httpServer, scheduler, config.auth.jwtSignKey);
+  const websocketServer = new WebsocketServer(httpServer, scheduler, watcherCounter, config.auth.jwtSignKey);
 
-  setupExpressApp(app, cameras, cameraStateStorage, {
+  setupExpressApp(app, cameras, cameraStateStorage, watcherCounter, {
     jwtLifetime: config.auth.jwtLifetime,
     jwtSignKey: config.auth.jwtSignKey,
     passwordHash: config.auth.passwordHash,

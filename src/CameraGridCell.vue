@@ -16,6 +16,9 @@
       <div class="camera-info__time">
         {{ lastUpdated }}
       </div>
+      <div v-if="camera.watching" class="camera-info__watchers">
+        👀
+      </div>
       <div class="camera-info__toggler camera-toggler">
         <input
           class="camera-toggler__input"
@@ -164,6 +167,8 @@ export default defineComponent({
 }
 
 .camera-info {
+  user-select: none;
+
   &_reloaded {
     animation: flash 1s linear;
   }
@@ -192,6 +197,14 @@ export default defineComponent({
     text-shadow: #000 0 0 2px;
     top: 5px;
     transition: opacity 0.2s linear;
+  }
+
+  &__watchers {
+    font-size: 0.9em;
+    right: 6px;
+    position: absolute;
+    text-shadow: #000 0 0 5px;
+    top: 3px;
   }
 
   &:hover &__time {

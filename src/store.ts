@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS = {
 const MAX_MESSAGE_COUNT = 50;
 const SETTINGS_STORAGE_KEY = 'videoDashboardSettings';
 
-function modifyCamera(cameras: any[], id: string, fn: (camera: any) => void) {
+function modifyCamera(cameras: Camera[], id: string, fn: (camera: Camera) => void) {
   if (!cameras) {
     return;
   }
@@ -46,7 +46,7 @@ export const store = createStore({
         const socket = new SockJS(`/events`);
         socket.onopen = async () => {
           try {
-            socket.send(state.authToken!);
+            socket.send(JSON.stringify({ token: state.authToken }));
             await dispatch('loadCameras');
             await dispatch('setupTimeUpdater');
             resolve();
@@ -117,6 +117,12 @@ export const store = createStore({
           commit('setLoadingStatus', {
             id: message.id,
             value: message.value
+          });
+          break;
+        case 'watching':
+          commit('setWatcherCount', {
+            id: message.id,
+            value: message.watching,
           });
           break;
         case 'time':
@@ -216,6 +222,11 @@ export const store = createStore({
         camera.isPoweredOff = value;
       });
     },
+    setWatcherCount(state, { id, value }) {
+      modifyCamera(state.cameras!, id, camera => {
+        camera.watching = value;
+      });
+    },
     toggleCameraPoweredOff (state, id) {
       modifyCamera(state.cameras!, id,
         camera => camera.isPoweredOff = !camera.isPoweredOff
@@ -251,7 +262,3 @@ export const store = createStore({
     showLogs: false
   }
 });
-
-export function useStore() {
-  return store;
-}

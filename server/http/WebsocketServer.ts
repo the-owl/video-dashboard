@@ -4,6 +4,7 @@ import { Server } from 'http';
 import { ReloadScheduler } from '../schedulers/ReloadScheduler';
 import { Camera } from '../Camera';
 import * as jwt from 'jsonwebtoken';
+import { WatcherCounter } from '../WatcherCounter';
 
 export class WebsocketServer {
   private activeSockets = new Set<sockjs.Connection>();
@@ -12,6 +13,7 @@ export class WebsocketServer {
   constructor (
     httpServer: Server,
     public readonly reloadScheduler: ReloadScheduler,
+    public readonly watcherCounter: WatcherCounter,
     public readonly jwtSignKey: string,
   ) {
     this.server = sockjs.createServer({
@@ -35,17 +37,28 @@ export class WebsocketServer {
     this.server.on('connection', socket => {
       socket.once('data', message => {
         try {
-          jwt.verify(message, this.jwtSignKey);
-          this.activeSockets.add(socket);
-          // Send current time to allow client to synchronize
-          this.sendJson(socket, {
-            type: 'time',
-            value: Date.now()
-          });
-          this.subscribeUntilClosed(this.reloadScheduler, 'updateError', this.sendError(socket), socket);
-          this.subscribeUntilClosed(this.reloadScheduler, 'update', this.sendUpdate(socket), socket);
-          this.subscribeUntilClosed(this.reloadScheduler, 'updateStart', this.sendLoading(socket, true), socket);
-          this.subscribeUntilClosed(this.reloadScheduler, 'updateEnd', this.sendLoading(socket, false), socket);
+          const data = JSON.parse(message);
+          if (data.token) {
+            jwt.verify(data.token, this.jwtSignKey);
+            this.activeSockets.add(socket);
+            // Send current time to allow client to synchronize
+            this.sendJson(socket, {
+              type: 'time',
+              value: Date.now()
+            });
+            this.subscribeUntilClosed(this.reloadScheduler, 'updateError', this.sendError(socket), socket);
+            this.subscribeUntilClosed(this.reloadScheduler, 'update', this.sendUpdate(socket), socket);
+            this.subscribeUntilClosed(this.reloadScheduler, 'updateStart', this.sendLoading(socket, true), socket);
+            this.subscribeUntilClosed(this.reloadScheduler, 'updateEnd', this.sendLoading(socket, false), socket);
+            this.subscribeUntilClosed(this.watcherCounter, 'update', this.sendWatching(socket), socket);
+          } else if (data.watch) {
+            const address = socket.id;
+            const camera = data.watch;
+            this.watcherCounter.addWatcher(camera, address);
+            socket.on('close', () => {
+              this.watcherCounter.removeWatcher(camera, address);
+            });
+          }
         } catch {
           console.warn('Non-authorized user connected to socket');
         }
@@ -90,6 +103,16 @@ export class WebsocketServer {
         failureCounter: camera.failureCounter,
         id: camera.id,
         type: 'update',
+      });
+    };
+  }
+
+  private sendWatching(socket: sockjs.Connection) {
+    return (camera: Camera, count: number) => {
+      this.sendJson(socket, {
+        id: camera.id,
+        type: 'watching',
+        watching: count,
       });
     };
   }
