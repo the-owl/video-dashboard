@@ -163,7 +163,7 @@ function useFullscreen(dimensions: Dimensions) {
     });
   }
 
-  const fullscreenPreview = useCameraPreview(selectedCamera);
+  const fullscreenPreview = useCameraPreview(selectedCamera as Ref<Camera>);
 
   return {
     afterTransitionEnter,
