@@ -43,6 +43,7 @@ export const store = createStore({
       }
 
       return new Promise<void>((resolve, reject) => {
+        window.SockJS = SockJS;
         const socket = new SockJS(`/events`);
         socket.onopen = async () => {
           try {

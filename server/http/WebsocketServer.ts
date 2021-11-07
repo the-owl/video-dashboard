@@ -14,6 +14,7 @@ export class WebsocketServer {
     httpServer: Server,
     public readonly reloadScheduler: ReloadScheduler,
     public readonly watcherCounter: WatcherCounter,
+    public readonly cameras: ReadonlyArray<Camera>,
     public readonly jwtSignKey: string,
   ) {
     this.server = sockjs.createServer({
@@ -53,14 +54,18 @@ export class WebsocketServer {
             this.subscribeUntilClosed(this.watcherCounter, 'update', this.sendWatching(socket), socket);
           } else if (data.watch) {
             const address = socket.id;
-            const camera = data.watch;
-            this.watcherCounter.addWatcher(camera, address);
-            socket.on('close', () => {
-              this.watcherCounter.removeWatcher(camera, address);
-            });
+            const cameraName = data.watch;
+            const camera = this.cameras.find(c => String(c.name) === String(cameraName));
+            if (camera) {
+              const cameraId = camera.id;
+              this.watcherCounter.addWatcher(cameraId, address);
+              socket.on('close', () => {
+                this.watcherCounter.removeWatcher(cameraId, address);
+              });
+            }
           }
-        } catch {
-          console.warn('Non-authorized user connected to socket');
+        } catch (error) {
+          console.warn('Non-authorized user connected to socket', error);
         }
       });
       socket.on('error', (error: any) => console.error('Websocket connection error: ', error));
@@ -108,9 +113,9 @@ export class WebsocketServer {
   }
 
   private sendWatching(socket: sockjs.Connection) {
-    return (camera: Camera, count: number) => {
+    return (cameraId: Camera, count: number) => {
       this.sendJson(socket, {
-        id: camera.id,
+        id: cameraId,
         type: 'watching',
         watching: count,
       });

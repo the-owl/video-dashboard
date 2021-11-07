@@ -21,6 +21,7 @@ async function main () {
   const cameras = config.cameras.map((camera: any) => new Camera({
     backend: config.defaultBackend,
     ...camera,
+    name: String(camera.name),
   })) as Camera[];
 
   const backends = {
@@ -46,7 +47,7 @@ async function main () {
     console.error('(attempt: ' + attempt + ')');
   });
 
-  const websocketServer = new WebsocketServer(httpServer, scheduler, watcherCounter, config.auth.jwtSignKey);
+  const websocketServer = new WebsocketServer(httpServer, scheduler, watcherCounter, cameras, config.auth.jwtSignKey);
 
   setupExpressApp(app, cameras, cameraStateStorage, watcherCounter, {
     jwtLifetime: config.auth.jwtLifetime,
