@@ -1,7 +1,7 @@
 import { BaseCameraService } from './BaseCameraService';
 import fetch from 'node-fetch';
 
-const VIDEO_URL_REGEX = /var n_url = "([^']+)";/i;
+const VIDEO_URL_REGEX = /var hd_url = ['"]([^']+)['"];/i;
 
 export class RtspMeBackend extends BaseCameraService {
   async fetchStreamUrl(cameraId: string) {
