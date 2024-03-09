@@ -2,6 +2,7 @@ import { CameraStateStorage } from './CameraStateStorage';
 import * as fs from 'fs-extra';
 import Lock from 'await-lock';
 import { CameraId } from '../Camera';
+import { runWithLock } from '../utils';
 
 interface CameraData {
   [id: string]: boolean;
@@ -50,11 +51,6 @@ export class JsonCameraStorage implements CameraStateStorage {
   }
 
   private async runWithLock (fn: () => Promise<any>) {
-    try {
-      await this.lock.acquireAsync();
-      await fn();
-    } finally {
-      this.lock.release();
-    }
+    await runWithLock(this.lock, fn);
   }
 }

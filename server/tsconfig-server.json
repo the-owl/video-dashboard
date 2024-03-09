@@ -3,6 +3,7 @@
     "allowJs": true,
     "downlevelIteration": true,
     "esModuleInterop": true,
+    "lib": ["DOM", "ES2019"],
     "sourceMap": true,
     "strict": true,
     "module": "commonjs",

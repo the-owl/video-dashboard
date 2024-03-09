@@ -8,6 +8,10 @@ export class WatcherCounter extends EventEmitter {
       this.cameraWatchers.set(camera, new Set());
     }
 
+    if (!this.cameraWatchers.get(camera)?.size) {
+      this.emit('startWatching', camera);
+    }
+
     this.cameraWatchers.get(camera)!.add(watcher);
     this.broadcastUpdate(camera);
   }
@@ -17,6 +21,9 @@ export class WatcherCounter extends EventEmitter {
   }
 
   removeWatcher(camera: string, watcher: string) {
+    if (this.cameraWatchers.get(camera)?.size) {
+      this.emit('endWatching', camera);
+    }
     this.cameraWatchers.get(camera)?.delete(watcher);
     this.broadcastUpdate(camera);
   }

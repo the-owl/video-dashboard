@@ -10,6 +10,8 @@ import { Reloader } from './Reloader';
 import { IpeyeBackend } from './backends/IpeyeBackend';
 import { RtspMeBackend } from './backends/RtspMeBackend';
 import { WatcherCounter } from './WatcherCounter';
+import { TextFileWatcherLog } from './WatcherLog';
+import { syncWatcherLogToCounter } from './syncWatcherLogToCounter';
 
 
 async function main () {
@@ -35,6 +37,9 @@ async function main () {
   const watcherCounter = new WatcherCounter();
   const reloader = new Reloader(backends, cameraStateStorage, config.reloader);
 
+  const watcherLog = new TextFileWatcherLog(config.watcherLog.filename);
+  syncWatcherLogToCounter(cameras, watcherLog, watcherCounter);
+
   const scheduler = new ConcurrentReloadScheduler(reloader, cameras, {
     concurrency: config.scheduler.parallelReloads,
     delayBetweenReloads: config.scheduler.delayBetweenReloads,
@@ -49,7 +54,7 @@ async function main () {
 
   const websocketServer = new WebsocketServer(httpServer, scheduler, watcherCounter, cameras, config.auth.jwtSignKey);
 
-  setupExpressApp(app, cameras, cameraStateStorage, watcherCounter, {
+  setupExpressApp(app, cameras, cameraStateStorage, watcherCounter, watcherLog, {
     jwtLifetime: config.auth.jwtLifetime,
     jwtSignKey: config.auth.jwtSignKey,
     passwordHash: config.auth.passwordHash,

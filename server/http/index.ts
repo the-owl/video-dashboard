@@ -9,6 +9,7 @@ import { WebsocketServer } from './WebsocketServer';
 import { login } from './login';
 import { authMiddleware } from './authMiddleware';
 import { WatcherCounter } from '../WatcherCounter';
+import { WatcherLog } from '../WatcherLog';
 
 export interface AuthSettings {
   jwtLifetime: string;
@@ -21,6 +22,7 @@ export function setupExpressApp(
   cameras: ReadonlyArray<Camera>,
   cameraStateStorage: CameraStateStorage,
   watcherCounter: WatcherCounter,
+  watcherLog: WatcherLog,
   authSettings: AuthSettings,
   websocketServer: WebsocketServer,
 ) {
