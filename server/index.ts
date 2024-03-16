@@ -10,7 +10,7 @@ import { Reloader } from './Reloader';
 import { IpeyeBackend } from './backends/IpeyeBackend';
 import { RtspMeBackend } from './backends/RtspMeBackend';
 import { WatcherCounter } from './WatcherCounter';
-import { TextFileWatcherLog } from './WatcherLog';
+import { TextFileWatcherLog, WatcherEventType } from './WatcherLog';
 import { syncWatcherLogToCounter } from './syncWatcherLogToCounter';
 
 
@@ -38,6 +38,10 @@ async function main () {
   const reloader = new Reloader(backends, cameraStateStorage, config.reloader);
 
   const watcherLog = new TextFileWatcherLog(config.watcherLog.filename);
+  await watcherLog.addEvent({
+    date: new Date(),
+    type: WatcherEventType.serverRestart,
+  });
   syncWatcherLogToCounter(cameras, watcherLog, watcherCounter);
 
   const scheduler = new ConcurrentReloadScheduler(reloader, cameras, {
@@ -58,7 +62,7 @@ async function main () {
     jwtLifetime: config.auth.jwtLifetime,
     jwtSignKey: config.auth.jwtSignKey,
     passwordHash: config.auth.passwordHash,
-  }, websocketServer);
+  }, websocketServer, config.watcherLog.showDays);
 
   if (!config.noReload) {
     scheduler.start();

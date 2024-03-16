@@ -10,7 +10,7 @@
         <div v-if="menuVisible" class="backdrop" @click="hideMenu" />
       </Transition>
 
-      <TopBar :ok="!connectionLost" :unread-count="unreadCount" @toggleMenu="showMenu">
+      <TopBar :ok="!connectionLost" @toggleMenu="showMenu">
         Все камеры
       </TopBar>
       <CameraGrid />
@@ -41,7 +41,6 @@ export default defineComponent({
     const authorized = ref(store.getters.authorized);
     const cameras = computed(() => store.state.cameras);
     const connectionLost = computed(() => store.state.connectionLost);
-    const unreadCount = computed(() => store.getters.unreadMessagesCount);
 
     const menuVisible = ref(false);
 
@@ -68,7 +67,6 @@ export default defineComponent({
       hideMenu,
       menuVisible,
       showMenu,
-      unreadCount,
     };
   },
 });

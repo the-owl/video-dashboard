@@ -11,23 +11,24 @@
     </section>
     <section class="menu-section menu-section_full-height">
       <h2 class="menu-section__header">
-        Лог ошибок
+        Логи просмотров камер клиентами
       </h2>
-      <ErrorLog class="menu-section__content" />
+      <CameraViewHistory />
     </section>
   </div>
 </template>
 
 <script lang="ts">
-import ErrorLog from './ErrorLog.vue';
 import Settings from './Settings.vue';
 import TopBar from './TopBar.vue';
 import { defineComponent } from 'vue';
 import VueTypes from 'vue-types';
+import CameraViewHistory from '@/WatcherLogLinks.vue';
 
 export default defineComponent({
   components: {
-    ErrorLog, Settings, TopBar
+    CameraViewHistory,
+    Settings, TopBar
   },
   props: {
     ok: VueTypes.bool.def(true),

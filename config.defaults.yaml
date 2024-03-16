@@ -52,3 +52,5 @@ scheduler:
 watcherLog:
   # Куда писать логи просмотров камер
   filename: watchers.log
+  # За сколько дней генерировать вывод лога
+  showDays: 30

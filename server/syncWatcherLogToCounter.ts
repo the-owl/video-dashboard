@@ -5,19 +5,30 @@ import { Camera } from './Camera';
 export function syncWatcherLogToCounter (
   cameras: ReadonlyArray<Camera>, log: WatcherLog, counter: WatcherCounter
 ): void {
-  const cameraIdsToNames = Object.fromEntries(cameras.map(c => [c.id, c.name]));
+  const cameraIdsToNames: { [id: string]: string } = {};
+  for (const cam of cameras) {
+    cameraIdsToNames[cam.id] = cam.name;
+  }
 
   counter.on('startWatching', async (cameraId: string) => {
+    const cameraName = cameraIdsToNames[cameraId];
+
+    if (typeof cameraName !== 'string') return;
+
     await log.addEvent({
-      cameraName: cameraIdsToNames[cameraId],
+      cameraName,
       date: new Date(),
       type: WatcherEventType.start,
     });
   });
 
   counter.on('endWatching', async (cameraId: string) => {
+    const cameraName = cameraIdsToNames[cameraId];
+
+    if (typeof cameraName !== 'string') return;
+
     await log.addEvent({
-      cameraName: cameraIdsToNames[cameraId],
+      cameraName,
       date: new Date(),
       type: WatcherEventType.end,
     });

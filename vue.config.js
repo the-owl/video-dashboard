@@ -13,8 +13,12 @@ module.exports = {
       },
       '/snapshots': {
         target: 'http://localhost:8001'
+      },
+      '/watchers-log': {
+        target: 'http://localhost:8001'
       }
     }
   },
   lintOnSave: true,
+  transpileDependencies: ['epic-spinners']
 };

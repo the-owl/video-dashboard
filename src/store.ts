@@ -4,13 +4,13 @@ import moment from 'moment';
 import SockJS from 'sockjs-client';
 import createPersistedState from 'vuex-persistedstate';
 import { Camera } from '@/types';
+import { watch } from 'vue';
 
 
 const CURRENT_TIME_UPDATE_INTERVAL = 10000; // ms
 const DEFAULT_SETTINGS = {
   fontSize: 18
 };
-const MAX_MESSAGE_COUNT = 50;
 const SETTINGS_STORAGE_KEY = 'videoDashboardSettings';
 
 function modifyCamera(cameras: Camera[], id: string, fn: (camera: Camera) => void) {
@@ -170,9 +170,6 @@ export const store = createStore({
     authorized(state) {
       return Boolean(state.authToken);
     },
-    unreadMessagesCount (state) {
-      return state.messages.filter(m => m.unread).length;
-    }
   },
   mutations: {
     forceUpdateAllCameras (state) {
@@ -190,17 +187,6 @@ export const store = createStore({
         camera.failureCounter = failureCounter;
         camera.lastUpdated = time;
       });
-      if (camera && !camera.isPoweredOff) {
-        state.messages.push({
-          camera,
-          message: error,
-          time,
-          unread: true
-        });
-        if (state.messages.length > MAX_MESSAGE_COUNT) {
-          state.messages = state.messages.slice(-MAX_MESSAGE_COUNT);
-        }
-      }
     },
     setCameras (state, cameras) {
       state.cameras = cameras;
@@ -254,11 +240,16 @@ export const store = createStore({
     connectionLost: false,
     currentTime: moment(),
     maxImageVersion: 0,
-    messages: [] as any[],
     settings: {
       ...DEFAULT_SETTINGS,
       ...(readSettings() || {}),
     },
     showLogs: false
   }
+});
+
+watch(() => store.state.authToken, token => {
+  document.cookie = 'authtoken=' + (token !== null ? encodeURIComponent(token) : '');
+}, {
+  immediate: true,
 });

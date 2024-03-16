@@ -21,10 +21,10 @@ export class WatcherCounter extends EventEmitter {
   }
 
   removeWatcher(camera: string, watcher: string) {
-    if (this.cameraWatchers.get(camera)?.size) {
+    this.cameraWatchers.get(camera)?.delete(watcher);
+    if (!this.cameraWatchers.get(camera)?.size) {
       this.emit('endWatching', camera);
     }
-    this.cameraWatchers.get(camera)?.delete(watcher);
     this.broadcastUpdate(camera);
   }
 

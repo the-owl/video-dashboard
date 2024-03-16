@@ -4,11 +4,12 @@ import * as fs from 'fs-extra';
 
 export enum WatcherEventType {
   start = 'start',
-  end = 'end'
+  end = 'end',
+  serverRestart = 'serverStart',
 }
 
 export interface WatcherEvent {
-  cameraName: string;
+  cameraName?: string;
   date: Date;
   type: WatcherEventType;
 }
@@ -28,14 +29,14 @@ export class TextFileWatcherLog implements WatcherLog {
   async addEvent (event: WatcherEvent) {
     await this.runWithLock(async () => {
       const row = this.serializeEvent(event);
-      await fs.appendFile(this.filename, row, { encoding: 'utf8' });
+      await fs.appendFile(this.filename, row + '\n', { encoding: 'utf8' });
     });
   }
 
   async getEvents (after: Date): Promise<WatcherEvent[]> {
     let data: string = '';
     await this.runWithLock(async () => {
-      data = await fs.readFile(this.filename, { encoding: 'utf8 '});
+      data = await fs.readFile(this.filename, { encoding: 'utf8' });
     });
     const rows = data.split('\n').filter(r => r.trim().length);
     return rows.map(row => this.parseEvent(row)).filter(event => event.date >= after);
@@ -50,7 +51,7 @@ export class TextFileWatcherLog implements WatcherLog {
       throw new ParseError('Failed to parse row: ' + row);
     }
 
-    if (typeof data.cam !== 'string') {
+    if (typeof data.cam !== 'string' && data.cam !== undefined) {
       throw new ParseError('Failed to parse cam field: ' + row);
     }
     if (!Object.values(WatcherEventType).find(e => e === data.type)) {
