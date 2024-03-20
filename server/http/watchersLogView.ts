@@ -15,6 +15,7 @@ export function watchersLogView(watcherLog: WatcherLog, showDays: number) {
     if (req.query.cameraName) {
       allEvents = allEvents.filter(e => e.cameraName === req.query.cameraName);
     }
+    allEvents.reverse();
 
     const watcherCounts = new Map<string, number>();
     const activeSessions = new Map<string, WatchSession>();
