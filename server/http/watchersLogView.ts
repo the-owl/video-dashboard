@@ -1,5 +1,6 @@
 import express from 'express';
 import { WatcherEventType, WatcherLog } from '../WatcherLog';
+import { format, utcToZonedTime } from 'date-fns-tz';
 
 interface WatchSession {
   cameraName: string;
@@ -13,7 +14,9 @@ export function watchersLogView(watcherLog: WatcherLog, showDays: number) {
     let allEvents = await watcherLog.getEvents(afterDate);
 
     if (req.query.cameraName) {
-      allEvents = allEvents.filter(e => e.cameraName === req.query.cameraName);
+      allEvents = allEvents.filter(e => (
+        e.cameraName === req.query.cameraName || e.type === WatcherEventType.serverRestart
+      ));
     }
     allEvents.reverse();
 
@@ -104,12 +107,18 @@ const TEMPLATE = `
 </html>
 `;
 
+const TIMEZONE = 'Europe/Moscow';
+const DATETIME_FORMAT = 'HH:mm:ss dd.MM.yyyy';
+
 function renderSessions(sessions: WatchSession[]): string {
   let rows = '';
 
   for (const session of sessions) {
-    const start = session.start.toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' });
-    const end = session.end?.toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' });
+    const startZoned = utcToZonedTime(session.start, TIMEZONE);
+    const endZoned = session.end ? utcToZonedTime(session.end, TIMEZONE) : null;
+
+    const start = format(startZoned, DATETIME_FORMAT);
+    const end = endZoned ? format(endZoned, DATETIME_FORMAT) : null;
     rows += `<tr><td>${session.cameraName}</td><td>${start}</td><td>${end ?? 'не завершена'}</td></tr>\n`;
   }
 
