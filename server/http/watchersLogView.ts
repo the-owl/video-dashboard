@@ -18,7 +18,6 @@ export function watchersLogView(watcherLog: WatcherLog, showDays: number) {
         e.cameraName === req.query.cameraName || e.type === WatcherEventType.serverRestart
       ));
     }
-    allEvents.reverse();
 
     const watcherCounts = new Map<string, number>();
     const activeSessions = new Map<string, WatchSession>();
@@ -68,6 +67,8 @@ export function watchersLogView(watcherLog: WatcherLog, showDays: number) {
         }
       }
     }
+
+    sessions.reverse();
 
     res.status(200).send(renderSessions(sessions));
   };
