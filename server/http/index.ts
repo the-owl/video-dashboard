@@ -12,6 +12,7 @@ import { authorizationHeaderTokenExtractor, cookieTokenExtractor, jwtAuthMiddlew
 import { WatcherCounter } from '../WatcherCounter';
 import { WatcherLog } from '../WatcherLog';
 import { watchersLogView } from './watchersLogView';
+import { CameraService } from '../backends/CameraService';
 
 export interface AuthSettings {
   jwtLifetime: string;
@@ -28,6 +29,7 @@ export function setupExpressApp(
   authSettings: AuthSettings,
   websocketServer: WebsocketServer,
   watchersLogShowDays: number,
+  backends: { [name: string]: CameraService },
 ) {
   const jwtAuth = jwtAuthMiddleware(authSettings.jwtSignKey, authorizationHeaderTokenExtractor);
   const cookieAuth = jwtAuthMiddleware(authSettings.jwtSignKey, cookieTokenExtractor, '/');
@@ -37,7 +39,7 @@ export function setupExpressApp(
     bodyParser.json(),
     login(authSettings.passwordHash, authSettings.jwtSignKey, authSettings.jwtLifetime),
   );
-  app.get('/cameras', jwtAuth, getCameraList(cameras, cameraStateStorage, watcherCounter));
+  app.get('/cameras', jwtAuth, getCameraList(cameras, cameraStateStorage, watcherCounter, backends));
   app.get('/watchers-log', cookieParser(), cookieAuth, watchersLogView(watcherLog, watchersLogShowDays));
   app.patch('/cameras/:id', jwtAuth, bodyParser.json(), updateCamera(
     cameras, cameraStateStorage, websocketServer

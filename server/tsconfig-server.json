@@ -8,7 +8,7 @@
     "strict": true,
     "module": "commonjs",
     "outDir": "../build-server",
-    "target": "es6"
+    "target": "ES2021"
   },
   "include": [
     "./**/*.ts"

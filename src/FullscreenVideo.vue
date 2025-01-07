@@ -41,9 +41,7 @@ export default defineComponent({
   },
   setup(props) {
     const loaded = ref(false);
-    const frameSrc = computed(() => (props.camera.backend === 'ipeye' ?
-      `https://ipeye.ru/ipeye_service/api/iframe.php?iframe_player=1&dev=${props.camera.id}&tupe=rtmp&autoplay=1&logo=1` :
-      `https://rtsp.me/embed/${props.camera.id}`));
+    const frameSrc = computed(() => props.camera.iframeUrl);
 
     function onFrameLoad() {
       loaded.value = true;

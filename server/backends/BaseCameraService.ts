@@ -1,4 +1,5 @@
 import { CameraService } from './CameraService';
+import { CameraId } from '../Camera';
 
 interface CachedStreamUrl {
   obtained: Date;
@@ -7,6 +8,7 @@ interface CachedStreamUrl {
 
 export abstract class BaseCameraService implements CameraService {
   private cachedStreamUrls: { [id: string]: CachedStreamUrl } = {};
+  public readonly supportsActiveCameraIds: boolean = false;
 
   async getStreamUrl (cameraId: string) {
     const cachedStream = this.cachedStreamUrls[cameraId];
@@ -24,10 +26,18 @@ export abstract class BaseCameraService implements CameraService {
     return streamUrl;
   }
 
+  getActiveCameraIds(): Promise<string[]> {
+    throw new Error('Not supported');
+  }
+
+  protected getStreamLifetime(): number {
+    return Infinity;
+  }
+
   private isStreamStale(obtained: Date) {
     return (Date.now() - obtained.getTime()) > this.getStreamLifetime();
   }
 
-  protected abstract fetchStreamUrl(cameraId: string): Promise<string> | string;
-  protected abstract getStreamLifetime(): number;
+  public abstract getIframeUrl(cameraId: CameraId): string;
+  protected abstract fetchStreamUrl(cameraId: CameraId): Promise<string> | string;
 }

@@ -52,17 +52,6 @@ export class WebsocketServer {
             this.subscribeUntilClosed(this.reloadScheduler, 'updateStart', this.sendLoading(socket, true), socket);
             this.subscribeUntilClosed(this.reloadScheduler, 'updateEnd', this.sendLoading(socket, false), socket);
             this.subscribeUntilClosed(this.watcherCounter, 'update', this.sendWatching(socket), socket);
-          } else if (data.watch) {
-            const address = socket.id;
-            const cameraName = data.watch;
-            const camera = this.cameras.find(c => String(c.name) === String(cameraName));
-            if (camera) {
-              const cameraId = camera.id;
-              this.watcherCounter.addWatcher(cameraId, address);
-              socket.on('close', () => {
-                this.watcherCounter.removeWatcher(cameraId, address);
-              });
-            }
           }
         } catch (error) {
           console.warn('Non-authorized user connected to socket', error);

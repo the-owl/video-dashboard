@@ -16,7 +16,7 @@ export interface WatcherEvent {
 
 export interface WatcherLog {
   addEvent (event: WatcherEvent): Promise<void>;
-  getEvents (after: Date): Promise<WatcherEvent[]>;
+  getEvents (minDate?: Date, afterLastReset?: boolean): Promise<WatcherEvent[]>;
 }
 
 export class ParseError extends Error {}
@@ -33,13 +33,26 @@ export class TextFileWatcherLog implements WatcherLog {
     });
   }
 
-  async getEvents (after: Date): Promise<WatcherEvent[]> {
+  async getEvents (minDate?: Date, afterLastReset?: boolean): Promise<WatcherEvent[]> {
     let data: string = '';
     await this.runWithLock(async () => {
       data = await fs.readFile(this.filename, { encoding: 'utf8' });
     });
     const rows = data.split('\n').filter(r => r.trim().length);
-    return rows.map(row => this.parseEvent(row)).filter(event => event.date >= after);
+
+    let events = rows.map(row => this.parseEvent(row));
+    if (minDate) {
+      events = events.filter(event => event.date >= minDate);
+    }
+    if (afterLastReset) {
+      let lastResetIndex = events.length - 1;
+      while (lastResetIndex >= 0 && events[lastResetIndex].type !== WatcherEventType.serverRestart) {
+        lastResetIndex--;
+      }
+      events = events.slice(lastResetIndex + 1);
+    }
+
+    return events;
   }
 
   protected parseEvent(row: string): WatcherEvent {

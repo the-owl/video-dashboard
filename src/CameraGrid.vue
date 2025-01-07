@@ -66,7 +66,7 @@ function useGrid(dimensions: Dimensions, count: Ref<number>, cellAspectRatio: Re
 
   return computed(() => {
     const variants = [];
-    for (let rowCount = 1; rowCount < count.value; rowCount++) {
+    for (let rowCount = 1; rowCount <= count.value; rowCount++) {
       const columnCount = Math.ceil(count.value / rowCount);
       const hasEmptyRows = rowCount * columnCount - count.value >= columnCount;
       if (!hasEmptyRows) {

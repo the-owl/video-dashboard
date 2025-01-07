@@ -1,5 +1,6 @@
 import { BaseCameraService } from './BaseCameraService';
 import fetch from 'node-fetch';
+import { CameraId } from '../Camera';
 
 const VIDEO_URL_REGEX = /var hd_url = ['"]([^']+)['"];/i;
 
@@ -14,6 +15,10 @@ export class RtspMeBackend extends BaseCameraService {
     }
 
     return match[1];
+  }
+
+  getIframeUrl(cameraId: CameraId): string {
+    return `https://rtsp.me/embed/${cameraId}`;
   }
 
   protected getStreamLifetime(): number {

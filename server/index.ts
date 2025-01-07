@@ -10,8 +10,9 @@ import { Reloader } from './Reloader';
 import { IpeyeBackend } from './backends/IpeyeBackend';
 import { RtspMeBackend } from './backends/RtspMeBackend';
 import { WatcherCounter } from './WatcherCounter';
-import { TextFileWatcherLog, WatcherEventType } from './WatcherLog';
+import { TextFileWatcherLog } from './WatcherLog';
 import { syncWatcherLogToCounter } from './syncWatcherLogToCounter';
+import { MediaMtxBackend } from './backends/MediaMtxBackend';
 
 
 async function main () {
@@ -29,21 +30,17 @@ async function main () {
   const backends = {
     ipeye: new IpeyeBackend(config.backends.ipeye),
     'rtsp.me': new RtspMeBackend(),
+    mediamtx: new MediaMtxBackend(config.backends.mediamtx),
   };
 
   const app = express();
   const httpServer = http.createServer(app);
 
-  const watcherCounter = new WatcherCounter();
-  const reloader = new Reloader(backends, cameraStateStorage, config.reloader);
-
   const watcherLog = new TextFileWatcherLog(config.watcherLog.filename);
-  await watcherLog.addEvent({
-    date: new Date(),
-    type: WatcherEventType.serverRestart,
-  });
-  syncWatcherLogToCounter(cameras, watcherLog, watcherCounter);
+  const watcherCounter = new WatcherCounter(watcherLog, cameras, backends);
+  await syncWatcherLogToCounter(cameras, watcherLog, watcherCounter);
 
+  const reloader = new Reloader(backends, cameraStateStorage, config.reloader);
   const scheduler = new ConcurrentReloadScheduler(reloader, cameras, {
     concurrency: config.scheduler.parallelReloads,
     delayBetweenReloads: config.scheduler.delayBetweenReloads,
@@ -62,7 +59,7 @@ async function main () {
     jwtLifetime: config.auth.jwtLifetime,
     jwtSignKey: config.auth.jwtSignKey,
     passwordHash: config.auth.passwordHash,
-  }, websocketServer, config.watcherLog.showDays);
+  }, websocketServer, config.watcherLog.showDays, backends);
 
   if (!config.noReload) {
     scheduler.start();

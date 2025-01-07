@@ -1,5 +1,8 @@
 import { CameraId } from '../Camera';
 
 export interface CameraService {
-  getStreamUrl (cameraId: CameraId): Promise<string>;
+  readonly supportsActiveCameraIds: boolean;
+  getActiveCameraIds(): Promise<string[]>;
+  getIframeUrl(cameraId: CameraId): string;
+  getStreamUrl(cameraId: CameraId): Promise<string>;
 }
