@@ -38,7 +38,7 @@ export class WatcherCounter extends EventEmitter {
 
     for (const [key, count] of counts.entries()) {
       if (count > 0 && namesToIds.has(key)) {
-        this.activeCameraIds.add(namesToIds.get(key));
+        this.activeCameraIds.add(namesToIds.get(key)!);
       }
     }
 
