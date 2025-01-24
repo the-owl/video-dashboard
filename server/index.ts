@@ -13,9 +13,11 @@ import { WatcherCounter } from './WatcherCounter';
 import { TextFileWatcherLog } from './WatcherLog';
 import { syncWatcherLogToCounter } from './syncWatcherLogToCounter';
 import { MediaMtxBackend } from './backends/MediaMtxBackend';
+import { preventDuplicateProcess } from './preventDuplicateProcess';
 
 
 async function main () {
+  await preventDuplicateProcess();
   const config = readConfig();
 
   const cameraStateStorage = new JsonCameraStorage(config.cameraStateFile);
