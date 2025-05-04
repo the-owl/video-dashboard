@@ -19,7 +19,7 @@ export class WatcherCounter extends EventEmitter {
   }
 
   async init() {
-    const allEvents = await this.watcherLog.getEvents(undefined, true);
+    const allEvents = await this.watcherLog.getEvents();
     const counts = new Map<string, number>();
     const namesToIds = new Map<string, string>(this.cameras.map(c => [c.name, c.id]));
 

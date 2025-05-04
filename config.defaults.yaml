@@ -1,8 +1,8 @@
 auth:
   # Время жизни сессии после авторизации (1 год, например)
-  jwtLifetime: '1y'
+  jwtLifetime: "1y"
   # Уникальный ключ для генерации токенов авторизации
-  jwtSignKey: '123'
+  jwtSignKey: "123"
   # Хэш пароля (bcrypt, можно создать через bcrypt-password.js)
   passwordHash: $2b$10$Bh6w2ua8ww1hN9Up4jhZ4.aioC536nc8OGYu8VIrqioBzyJ2WX0NG
 
@@ -50,7 +50,10 @@ scheduler:
   parallelReloads: 1
 
 watcherLog:
+  enable: true
   # Куда писать логи просмотров камер
   filename: watchers.log
+  # Сколько дней хранить перед архивацией
+  retentionDays: 30
   # За сколько дней генерировать вывод лога
   showDays: 30

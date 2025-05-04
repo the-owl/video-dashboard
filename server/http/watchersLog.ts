@@ -1,6 +1,6 @@
-import express from 'express';
-import { WatcherEventType, WatcherLog } from '../WatcherLog';
-import { format, utcToZonedTime } from 'date-fns-tz';
+import express from "express";
+import { WatcherEventType, WatcherLog } from "../WatcherLog";
+import { format, utcToZonedTime } from "date-fns-tz";
 
 interface WatchSession {
   cameraName: string;
@@ -14,9 +14,9 @@ export function watchersLogView(watcherLog: WatcherLog, showDays: number) {
     let allEvents = await watcherLog.getEvents(afterDate);
 
     if (req.query.cameraName) {
-      allEvents = allEvents.filter(e => (
-        e.cameraName === req.query.cameraName || e.type === WatcherEventType.serverRestart
-      ));
+      allEvents = allEvents.filter(
+        (e) => e.cameraName === req.query.cameraName
+      );
     }
 
     const watcherCounts = new Map<string, number>();
@@ -24,15 +24,7 @@ export function watchersLogView(watcherLog: WatcherLog, showDays: number) {
     const sessions: WatchSession[] = [];
 
     for (const event of allEvents) {
-      if (typeof event.cameraName !== 'string') {
-        if (event.type === WatcherEventType.serverRestart) {
-          for (const session of activeSessions.values()) {
-            session.end = event.date;
-          }
-          activeSessions.clear();
-          watcherCounts.clear();
-        }
-
+      if (typeof event.cameraName !== "string") {
         continue;
       }
 
@@ -51,7 +43,7 @@ export function watchersLogView(watcherLog: WatcherLog, showDays: number) {
         }
       } else if (event.type === WatcherEventType.end) {
         if (currentValue <= 0) {
-          console.warn('Warning: inconsistent event at date: ', event.date);
+          console.warn("Warning: inconsistent event at date: ", event.date);
           continue;
         }
 
@@ -59,7 +51,7 @@ export function watchersLogView(watcherLog: WatcherLog, showDays: number) {
         if (currentValue === 1) {
           const currentSession = activeSessions.get(event.cameraName);
           if (!currentSession) {
-            console.warn('Warning: missing start event at date: ', event.date);
+            console.warn("Warning: missing start event at date: ", event.date);
             continue;
           }
           currentSession.end = event.date;
@@ -108,11 +100,11 @@ const TEMPLATE = `
 </html>
 `;
 
-const TIMEZONE = 'Europe/Moscow';
-const DATETIME_FORMAT = 'HH:mm:ss dd.MM.yyyy';
+const TIMEZONE = "Europe/Moscow";
+const DATETIME_FORMAT = "HH:mm:ss dd.MM.yyyy";
 
 function renderSessions(sessions: WatchSession[]): string {
-  let rows = '';
+  let rows = "";
 
   for (const session of sessions) {
     const startZoned = utcToZonedTime(session.start, TIMEZONE);
@@ -120,8 +112,10 @@ function renderSessions(sessions: WatchSession[]): string {
 
     const start = format(startZoned, DATETIME_FORMAT);
     const end = endZoned ? format(endZoned, DATETIME_FORMAT) : null;
-    rows += `<tr><td>${session.cameraName}</td><td>${start}</td><td>${end ?? 'не завершена'}</td></tr>\n`;
+    rows += `<tr><td>${session.cameraName}</td><td>${start}</td><td>${
+      end ?? "не завершена"
+    }</td></tr>\n`;
   }
 
-  return TEMPLATE.replace('%rows%', rows);
+  return TEMPLATE.replace("%rows%", rows);
 }
