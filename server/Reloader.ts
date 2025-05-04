@@ -65,9 +65,18 @@ export class Reloader {
   private async generateSnapshot (camera: Camera) {
     const streamUrl = await this.getStreamUrl(camera);
     const output = path.join(this.getSnapshotDir(camera.id), 'output.jpg');
+    const ffmpegOpts = [
+      `-rtsp_transport tcp`,  // udp does not always work
+      `-i ${streamUrl}`,  // specify input stream
+      `-vf scale=${this.config.imageSize}:-1`,  // scale image
+      `-update 1`,  // write image only once
+      `-y`,  // overwrite output without prompting
+      `-f image2 -frames:v 1`,  // output single frame to image
+      `${output}`,  // specify output filename
+    ]
     return new Promise<void>((resolve, reject) => {
       exec(
-        `ffmpeg -i ${streamUrl} -y -r 1 -t 1 -vf scale=${this.config.imageSize}:-1 ${output}`,
+        `ffmpeg ${ffmpegOpts.join(' ')}`,
         {
           timeout: this.config.timeout
         },
